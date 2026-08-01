@@ -6,6 +6,32 @@
     <title>Conteúdo do Site — ADBlu Missões</title>
   </head>
   <body>
+    <script>
+      if (!window.crypto.randomUUID) {
+        window.crypto.randomUUID = function () {
+          var b = new Uint8Array(16);
+          window.crypto.getRandomValues(b);
+          b[6] = (b[6] & 0x0f) | 0x40;
+          b[8] = (b[8] & 0x3f) | 0x80;
+          var h = Array.prototype.map
+            .call(b, function (x) {
+              return (x < 16 ? '0' : '') + x.toString(16);
+            })
+            .join('');
+          return (
+            h.substr(0, 8) +
+            '-' +
+            h.substr(8, 4) +
+            '-' +
+            h.substr(12, 4) +
+            '-' +
+            h.substr(16, 4) +
+            '-' +
+            h.substr(20)
+          );
+        };
+      }
+    </script>
     <script src="./decap-cms.js"></script>
   </body>
 </html>
