@@ -15,9 +15,11 @@ export default function SiteHeader() {
     <header className="border-b border-white/10 bg-navy-900 text-white">
       <div className="mx-auto flex max-w-6xl flex-col gap-4 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
         <Link href="/" className="flex items-center gap-2.5">
-          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-accent text-base font-bold text-white">
-            A
-          </span>
+          <img
+            src="/logo.png"
+            alt={config.nome_curto}
+            className="h-10 w-10 rounded-full object-cover"
+          />
           <span className="text-base font-semibold leading-tight">
             {config.nome_curto}
           </span>
