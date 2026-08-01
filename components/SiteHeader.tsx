@@ -18,7 +18,7 @@ export default function SiteHeader() {
           <img
             src="/logo.png"
             alt={config.nome_curto}
-            className="h-10 w-10 rounded-full object-cover"
+            className="h-10 w-auto rounded object-contain"
           />
           <span className="text-base font-semibold leading-tight">
             {config.nome_curto}
