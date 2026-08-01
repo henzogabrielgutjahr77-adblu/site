@@ -30,32 +30,32 @@ export default function Hero({ config }: { config: SiteConfig }) {
         <div className="absolute inset-0 bg-black/60" aria-hidden="true" />
       )}
 
-      <div className="relative mx-auto flex min-h-[340px] max-w-4xl flex-col items-center justify-center px-4 py-16 text-center">
-        <div className="mb-5 flex items-center gap-2 rounded-full border border-accent/40 bg-accent/15 px-4 py-1.5">
-          <MapPinIcon className="h-3.5 w-3.5 text-[#f5a36c]" />
-          <span className="text-xs font-medium uppercase tracking-[0.12em] text-[#f5a36c]">
+      <div className="relative mx-auto flex min-h-svh max-w-4xl flex-col items-center justify-center px-4 py-16 text-center">
+        <div className="mb-6 flex items-center gap-2 rounded-full border border-accent/40 bg-accent/15 px-5 py-2">
+          <MapPinIcon className="h-4 w-4 text-[#f5a36c]" />
+          <span className="text-xs font-medium uppercase tracking-[0.12em] text-[#f5a36c] sm:text-sm">
             {config.local}
           </span>
         </div>
 
-        <h1 className="text-4xl font-bold leading-tight tracking-tight sm:text-5xl">
+        <h1 className="text-5xl font-bold leading-tight tracking-tight sm:text-7xl">
           {config.titulo_hero}
         </h1>
 
-        <p className="mb-8 mt-3 text-lg italic text-white/65">
+        <p className="mb-9 mt-4 text-xl italic text-white/65 sm:text-2xl">
           {config.slogan}
         </p>
 
-        <div className="mb-7 flex flex-wrap justify-center gap-3">
+        <div className="mb-8 flex flex-wrap justify-center gap-3">
           <Link
             href="/fale-conosco"
-            className="rounded-lg bg-accent px-7 py-3.5 font-medium text-white transition-colors hover:bg-orange-600"
+            className="rounded-lg bg-accent px-8 py-4 text-base font-medium text-white transition-colors hover:bg-orange-600"
           >
             {config.cta}
           </Link>
           <Link
             href="/agenda"
-            className="rounded-lg border-[1.5px] border-white/35 px-7 py-3.5 font-medium text-white transition-colors hover:bg-white/10"
+            className="rounded-lg border-[1.5px] border-white/35 px-8 py-4 text-base font-medium text-white transition-colors hover:bg-white/10"
           >
             Nossa Agenda
           </Link>
