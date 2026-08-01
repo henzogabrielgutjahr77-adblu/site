@@ -7,6 +7,7 @@ export const CONTENT_DIR = path.join(process.cwd(), "content");
 
 export interface SiteConfig {
   nome: string;
+  nome_curto: string;
   titulo_hero: string;
   local: string;
   hero_imagem?: string;

@@ -21,7 +21,7 @@ export default function SiteHeader() {
             A
           </span>
           <span className="text-sm font-semibold leading-tight">
-            {config.nome}
+            {config.nome_curto}
           </span>
         </Link>
         <nav className="flex flex-wrap gap-x-5 gap-y-2 text-sm">
