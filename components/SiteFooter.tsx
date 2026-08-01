@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { getSiteConfig } from "@/lib/content";
 
 export default function SiteFooter() {
@@ -29,12 +28,6 @@ export default function SiteFooter() {
             </p>
           )}
           {config.email && <p>E-mail: {config.email}</p>}
-          <Link
-            href="/fale-conosco"
-            className="mt-4 inline-block rounded-lg bg-accent px-5 py-2.5 font-medium text-white transition-all hover:-translate-y-0.5 hover:bg-orange-600"
-          >
-            {config.cta}
-          </Link>
         </div>
       </div>
       <div className="border-t border-white/10 py-4 text-center text-xs text-white/60">
