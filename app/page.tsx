@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Hero from "@/components/Hero";
 import Markdown from "@/components/Markdown";
 import { formatDate, getPage, getPosts, getSiteConfig } from "@/lib/content";
 
@@ -12,32 +13,11 @@ export default function Home() {
   return (
     <>
       {/* Hero */}
-      <section
-        className="bg-navy-900 text-white"
-        style={{
-          backgroundImage:
-            "linear-gradient(135deg, #0e1a26 0%, #17354f 55%, #0e1a26 100%)",
-        }}
-      >
-        <div className="mx-auto flex max-w-4xl flex-col items-center px-4 py-24 text-center">
-          <h1 className="text-3xl font-bold leading-tight sm:text-5xl">
-            {config.nome}
-          </h1>
-          <p className="mt-4 max-w-2xl text-lg text-white/85 sm:text-xl">
-            {config.slogan}
-          </p>
-          <Link
-            href="/fale-conosco"
-            className="mt-8 rounded bg-accent px-6 py-3 font-semibold text-white transition-colors hover:bg-orange-600"
-          >
-            {config.cta}
-          </Link>
-        </div>
-      </section>
+      <Hero config={config} />
 
       {/* Boas-vindas */}
       {home && (
-        <section className="mx-auto max-w-3xl px-4 py-16">
+        <section id="sobre" className="mx-auto max-w-3xl px-4 py-16">
           <Markdown>{home.body}</Markdown>
         </section>
       )}
