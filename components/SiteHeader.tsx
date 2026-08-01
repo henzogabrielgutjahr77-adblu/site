@@ -12,30 +12,31 @@ const NAV = [
 export default function SiteHeader() {
   const config = getSiteConfig();
   return (
-    <header className="border-b border-white/10 bg-navy-900 text-white">
-      <div className="mx-auto flex max-w-6xl flex-col gap-4 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
-        <Link href="/" className="flex items-center gap-2.5">
-          <img
-            src="/logo.png"
-            alt={config.nome_curto}
-            className="h-10 w-auto rounded object-contain"
-          />
-          <span className="text-base font-semibold leading-tight">
-            {config.nome_curto}
-          </span>
-        </Link>
-        <nav className="flex flex-wrap items-center gap-x-7 gap-y-2 text-sm">
+    <header className="sticky top-0 z-[100] flex h-[60px] items-center justify-between border-b border-white/[0.06] bg-[#08111f] px-5 text-white sm:px-12">
+      <Link href="/" className="flex items-center gap-2.5">
+        <img
+          src="/logo.png"
+          alt={config.nome_curto}
+          className="h-10 w-auto rounded object-contain"
+        />
+        <span className="text-[18px] font-bold tracking-[-0.3px]">
+          {config.nome_curto}
+        </span>
+      </Link>
+      <nav>
+        <ul className="flex list-none items-center gap-[1.2rem] sm:gap-[2.2rem]">
           {NAV.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="text-white/85 transition-colors hover:text-accent"
-            >
-              {item.label}
-            </Link>
+            <li key={item.href}>
+              <Link
+                href={item.href}
+                className="text-[13px] font-medium text-white/65 transition-colors hover:text-white sm:text-[14px]"
+              >
+                {item.label}
+              </Link>
+            </li>
           ))}
-        </nav>
-      </div>
+        </ul>
+      </nav>
     </header>
   );
 }

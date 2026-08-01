@@ -1,87 +1,71 @@
 import Link from "next/link";
 import type { SiteConfig } from "@/lib/content";
-import {
-  ChevronDownIcon,
-  FacebookIcon,
-  InstagramIcon,
-  MapPinIcon,
-  YoutubeIcon,
-} from "@/components/icons";
+import { ChevronDownIcon, CompassIcon } from "@/components/icons";
+
+const HERO_BG = [
+  "radial-gradient(ellipse 60% 60% at 75% 45%, rgba(18,80,150,0.55) 0%, transparent 70%)",
+  "radial-gradient(ellipse 50% 50% at 25% 70%, rgba(8,55,80,0.45) 0%, transparent 65%)",
+  "radial-gradient(ellipse 40% 40% at 50% 20%, rgba(10,50,100,0.3) 0%, transparent 60%)",
+  "linear-gradient(160deg, #08111f 0%, #0e2540 45%, #0b1e34 100%)",
+].join(", ");
+
+function splitTitle(title: string) {
+  const parts = title.trim().split(" ");
+  if (parts.length < 2) return title;
+  const last = parts.pop();
+  return (
+    <>
+      {parts.join(" ")} <br /> {last}
+    </>
+  );
+}
 
 export default function Hero({ config }: { config: SiteConfig }) {
-  const socials = [
-    { href: config.facebook || "#", icon: FacebookIcon, label: "Facebook" },
-    { href: config.instagram || "#", icon: InstagramIcon, label: "Instagram" },
-    { href: config.youtube || "#", icon: YoutubeIcon, label: "YouTube" },
-  ];
-
   return (
     <section
-      className="relative overflow-hidden text-white"
-      style={{
-        backgroundImage: config.hero_imagem
-          ? `url(${config.hero_imagem})`
-          : "linear-gradient(160deg, #0d1b2a 0%, #1a3a5c 60%, #0d2d1e 100%)",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
+      className="relative flex min-h-[calc(100svh-60px)] flex-col items-center justify-center overflow-hidden px-8 pb-16 pt-20 text-center text-white"
+      style={{ background: HERO_BG }}
     >
-      {config.hero_imagem && (
-        <div className="absolute inset-0 bg-black/60" aria-hidden="true" />
-      )}
+      <div className="mb-[1.6rem] inline-flex items-center gap-2 rounded-[100px] border border-white/10 bg-[rgba(20,24,35,0.75)] px-5 py-[7px] backdrop-blur">
+        <CompassIcon className="h-[13px] w-[13px] text-white/60" />
+        <span className="text-[11.5px] font-medium uppercase tracking-[0.14em] text-white/70">
+          {config.local}
+        </span>
+      </div>
 
-      <div className="relative mx-auto flex min-h-svh max-w-4xl flex-col items-center justify-center px-6 pb-[12vh] pt-0 text-center">
-        <div className="mb-6 flex items-center gap-2 rounded-full border border-accent/40 bg-accent/15 px-5 py-2">
-          <MapPinIcon className="h-4 w-4 text-[#f5a36c]" />
-          <span className="text-xs font-medium uppercase tracking-[0.12em] text-[#f5a36c] sm:text-sm">
-            {config.local}
-          </span>
-        </div>
+      <h1 className="text-[clamp(46px,7.5vw,80px)] font-extrabold leading-[1.07] tracking-[-1.5px] text-white">
+        {splitTitle(config.titulo_hero)}
+      </h1>
 
-        <h1 className="text-5xl font-bold leading-tight tracking-tight sm:text-7xl">
-          {config.titulo_hero}
-        </h1>
+      <p className="mb-11 mt-0 text-[clamp(16px,2vw,19px)] italic text-white/50">
+        {config.slogan}
+      </p>
 
-        <p className="mb-10 mt-5 text-xl italic text-white/75 sm:text-2xl">
-          {config.slogan}
-        </p>
-
-        <div className="mb-9 flex flex-wrap items-center justify-center gap-4">
-          <Link
-            href="/fale-conosco"
-            className="rounded-xl bg-gradient-to-b from-accent to-orange-600 px-9 py-4 text-base font-semibold text-white shadow-lg shadow-orange-500/25 transition-all hover:-translate-y-0.5 hover:from-orange-600 hover:to-orange-700 hover:shadow-xl hover:shadow-orange-500/30"
-          >
-            {config.cta}
-          </Link>
-          <Link
-            href="/agenda"
-            className="rounded-xl border-[1.5px] border-white/40 px-8 py-4 text-base font-medium text-white transition-colors hover:border-white/70 hover:bg-white/10"
-          >
-            Nossa Agenda
-          </Link>
-        </div>
-
-        <div className="flex items-center gap-4">
-          {socials.map(({ href, icon: Icon, label }) => (
-            <a
-              key={label}
-              href={href}
-              aria-label={label}
-              className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white/75 transition-all hover:-translate-y-0.5 hover:bg-accent hover:text-white"
-            >
-              <Icon className="h-5 w-5" />
-            </a>
-          ))}
-        </div>
+      <div className="flex flex-wrap items-center justify-center gap-3.5">
+        <Link
+          href="/fale-conosco"
+          className="rounded-lg bg-[#e85d04] px-8 py-[15px] text-[15.5px] font-semibold text-white shadow-[0_4px_20px_rgba(232,93,4,0.35)] transition-all hover:-translate-y-px hover:bg-[#d05203] hover:shadow-[0_6px_28px_rgba(232,93,4,0.45)]"
+        >
+          {config.cta}
+        </Link>
+        <Link
+          href="/agenda"
+          className="rounded-lg border-[1.5px] border-white/20 bg-white/[0.07] px-8 py-[15px] text-[15.5px] font-semibold text-white transition-all hover:-translate-y-px hover:border-white/40 hover:bg-white/[0.13]"
+        >
+          Nossa Agenda
+        </Link>
       </div>
 
       <a
         href="#sobre"
         aria-label="Rolar para o conteúdo"
-        className="absolute bottom-5 left-1/2 -translate-x-1/2 text-white/40 transition-colors hover:text-white/80"
+        className="absolute bottom-7 left-1/2 -translate-x-1/2 opacity-30 transition-opacity hover:opacity-70"
+        style={{ animation: "hero-bounce 2s infinite" }}
       >
-        <ChevronDownIcon className="h-6 w-6" />
+        <ChevronDownIcon className="h-5 w-5 text-white" />
       </a>
+
+      <style>{`@keyframes hero-bounce { 0%,100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(5px); } }`}</style>
     </section>
   );
 }
