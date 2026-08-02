@@ -30,8 +30,6 @@ const CONFIG_FIELDS: { key: string; label: string }[] = [
   { key: "whatsapp_url", label: "WhatsApp (URL)" },
   { key: "endereco", label: "Endereço" },
   { key: "email", label: "Email" },
-  { key: "horario_domingo", label: "Horário domingo" },
-  { key: "horario_quinta", label: "Horário quinta" },
 ];
 
 const ALLOWED_MIME = new Set(["image/png", "image/jpeg", "image/webp", "image/gif"]);
@@ -137,6 +135,30 @@ export async function savePageAction(
   fs.writeFileSync(file, out);
   syncToGit();
   return { ok: `Página "${title}" salva e sincronizada.` };
+}
+
+export async function saveHorariosAction(
+  _prev: ActionResult,
+  formData: FormData,
+): Promise<ActionResult> {
+  await requireAuth();
+  const current = yaml.load(fs.readFileSync(SITE_FILE, "utf-8")) as Record<string, unknown>;
+  const horarios = String(formData.get("horarios") ?? "")
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const [dia, horario, ...rest] = line.split("|").map((part) => part.trim());
+      const descricao = rest.join("|").trim();
+      return descricao ? { dia, horario, descricao } : { dia, horario };
+    });
+  current.horarios = horarios;
+  fs.writeFileSync(
+    SITE_FILE,
+    yaml.dump(current, { lineWidth: 120, noRefs: true }) + "\n",
+  );
+  syncToGit();
+  return { ok: "Horários de culto salvos e sincronizados." };
 }
 
 export async function saveGalleryAction(

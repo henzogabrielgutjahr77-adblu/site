@@ -1,6 +1,6 @@
 import { getSiteConfig, getPages, getGallery } from "@/lib/content";
 import { logoutAction } from "./actions";
-import { ConfigForm, PageForm, GalleryForm, UploadForm } from "./forms";
+import { ConfigForm, PageForm, GalleryForm, HorariosForm, UploadForm } from "./forms";
 
 export default function Dashboard() {
   const config = getSiteConfig();
@@ -32,6 +32,14 @@ export default function Dashboard() {
       <section className="mt-8">
         <h2 className="text-lg font-semibold text-slate-900">Configurações gerais</h2>
         <ConfigForm config={config} />
+      </section>
+
+      <section className="mt-10">
+        <h2 className="text-lg font-semibold text-slate-900">Horários de culto</h2>
+        <p className="text-sm text-slate-500">
+          Uma linha por culto, no formato <code className="font-mono">dia|horário|descrição</code>. Você pode adicionar ou remover quantos cultos quiser.
+        </p>
+        <HorariosForm horarios={config.horarios ?? []} />
       </section>
 
       <section className="mt-10">

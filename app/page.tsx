@@ -1,53 +1,41 @@
 import Link from "next/link";
 import Hero from "@/components/Hero";
-import Markdown from "@/components/Markdown";
-import { getPage, getSiteConfig } from "@/lib/content";
+import { getSiteConfig } from "@/lib/content";
 
 export const revalidate = 60;
 
 export default function Home() {
   const config = getSiteConfig();
-  const home = getPage("home");
+  const horarios = config.horarios ?? [];
 
   return (
     <>
       {/* Hero */}
       <Hero config={config} />
 
-      {/* Boas-vindas */}
-      {home && (
-        <section id="sobre" className="mx-auto max-w-3xl px-6 py-20">
-          <Markdown>{home.body}</Markdown>
+      {/* Horários */}
+      {horarios.length > 0 && (
+        <section id="horarios" className="bg-slate-50 py-20">
+          <div className="mx-auto grid max-w-4xl gap-6 px-6 sm:grid-cols-2">
+            {horarios.map((h, i) => (
+              <div
+                key={i}
+                className="rounded-xl border border-slate-200 bg-white p-7 shadow-md"
+              >
+                <p className="text-sm font-semibold uppercase tracking-wide text-accent">
+                  {h.dia}
+                </p>
+                <h3 className="mt-1.5 text-xl font-semibold text-navy-900">
+                  {h.horario}
+                </h3>
+                {h.descricao && (
+                  <p className="mt-2 text-sm text-slate-700">{h.descricao}</p>
+                )}
+              </div>
+            ))}
+          </div>
         </section>
       )}
-
-      {/* Horários */}
-      <section className="bg-slate-50 py-20">
-        <div className="mx-auto grid max-w-4xl gap-6 px-6 sm:grid-cols-2">
-          <div className="rounded-xl border border-slate-200 bg-white p-7 shadow-md">
-            <p className="text-sm font-semibold uppercase tracking-wide text-accent">
-              Domingo
-            </p>
-            <h3 className="mt-1.5 text-xl font-semibold text-navy-900">
-              {config.horario_domingo}
-            </h3>
-            <p className="mt-2 text-sm text-slate-700">
-              Culto ao Senhor, com louvor e ministração da Palavra.
-            </p>
-          </div>
-          <div className="rounded-xl border border-slate-200 bg-white p-7 shadow-md">
-            <p className="text-sm font-semibold uppercase tracking-wide text-accent">
-              Quinta-feira
-            </p>
-            <h3 className="mt-1.5 text-xl font-semibold text-navy-900">
-              {config.horario_quinta}
-            </h3>
-            <p className="mt-2 text-sm text-slate-700">
-              Culto de ensino e oração, aberto a todos.
-            </p>
-          </div>
-        </div>
-      </section>
 
       {/* CTA final */}
       <section className="bg-navy-700 py-20 text-white">

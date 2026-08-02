@@ -6,9 +6,11 @@ import {
   saveConfigAction,
   savePageAction,
   saveGalleryAction,
+  saveHorariosAction,
   uploadImageAction,
   type ActionResult,
 } from "./actions";
+import type { Horario } from "@/lib/content";
 
 const inputCls =
   "mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-orange-500 focus:outline-none";
@@ -36,8 +38,6 @@ const CONFIG_FIELDS: { key: keyof SiteConfig; label: string }[] = [
   { key: "whatsapp_url", label: "WhatsApp (URL)" },
   { key: "endereco", label: "Endereço" },
   { key: "email", label: "Email" },
-  { key: "horario_domingo", label: "Horário domingo" },
-  { key: "horario_quinta", label: "Horário quinta" },
 ];
 
 export function ConfigForm({ config }: { config: SiteConfig }) {
@@ -103,6 +103,33 @@ export function PageForm({ page }: { page: PageContent & { slug: string } }) {
         <Status state={state} />
       </form>
     </details>
+  );
+}
+
+export function HorariosForm({ horarios }: { horarios: Horario[] }) {
+  const [state, action, pending] = useActionState(saveHorariosAction, {});
+  const inicial = horarios
+    .map((h) => [h.dia, h.horario, h.descricao ?? ""].join("|"))
+    .join("\n");
+  return (
+    <form action={action} className="mt-3 rounded-2xl bg-white p-6 shadow-sm">
+      <label className="block text-sm font-medium text-slate-700" htmlFor="horarios">
+        Horários de culto (uma por linha:{" "}
+        <code className="font-mono">dia|horário|descrição</code>)
+      </label>
+      <textarea
+        id="horarios"
+        name="horarios"
+        rows={8}
+        defaultValue={inicial}
+        className={`${inputCls} font-mono`}
+        placeholder={"Domingo|Domingo às 18h30|Culto ao Senhor, com louvor e ministração da Palavra.\nQuinta-feira|Quinta-feira às 19h30|Culto de ensino e oração, aberto a todos."}
+      />
+      <button type="submit" disabled={pending} className={`${btnCls} mt-5`}>
+        {pending ? "Salvando…" : "Salvar horários"}
+      </button>
+      <Status state={state} />
+    </form>
   );
 }
 

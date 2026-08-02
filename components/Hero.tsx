@@ -26,50 +26,60 @@ export default function Hero({ config }: { config: SiteConfig }) {
       className="relative flex min-h-[calc(100svh-60px)] flex-col items-center justify-center overflow-hidden px-8 pb-16 pt-20 text-center text-white"
       style={{ background: HERO_BG }}
     >
-      <div className="mb-[1.6rem] inline-flex items-center gap-2 rounded-[100px] border border-white/10 bg-[rgba(20,24,35,0.75)] px-5 py-[7px] backdrop-blur">
-        <CompassIcon className="h-[13px] w-[13px] text-white/60" />
-        <span className="text-[11.5px] font-medium uppercase tracking-[0.14em] text-white/70">
-          {config.local}
-        </span>
-      </div>
-
-      <h1 className="text-[clamp(46px,7.5vw,80px)] font-extrabold leading-[1.07] tracking-[-1.5px] text-white">
-        {splitTitle(config.titulo_hero)}
-      </h1>
-
-      <p className="mb-11 mt-0 text-[clamp(16px,2vw,19px)] italic text-white/50">
-        {config.slogan}
-      </p>
-
-      <div className="flex flex-wrap items-center justify-center gap-3.5">
-        <Link
-          href="/fale-conosco"
-          className="rounded-lg bg-[#e85d04] px-8 py-[15px] text-[15.5px] font-semibold text-white shadow-[0_4px_20px_rgba(232,93,4,0.35)] transition-all hover:-translate-y-px hover:bg-[#d05203] hover:shadow-[0_6px_28px_rgba(232,93,4,0.45)]"
-        >
-          {config.cta}
-        </Link>
-        <Link
-          href="/agenda"
-          className="rounded-lg border-[1.5px] border-white/20 bg-white/[0.07] px-8 py-[15px] text-[15.5px] font-semibold text-white transition-all hover:-translate-y-px hover:border-white/40 hover:bg-white/[0.13]"
-        >
-          Nossa Agenda
-        </Link>
-      </div>
-
-      {config.instagram && (
-        <a
-          href={config.instagram}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Instagram"
-          className="mt-6 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white/75 transition-all hover:-translate-y-0.5 hover:bg-[#e85d04] hover:text-white"
-        >
-          <InstagramIcon className="h-5 w-5" />
-        </a>
+      {config.hero_imagem && (
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-10"
+          style={{ backgroundImage: `url(${config.hero_imagem})` }}
+        />
       )}
 
+      <div className="relative z-10 flex w-full flex-col items-center justify-center">
+        <div className="mb-[1.6rem] inline-flex items-center gap-2 rounded-[100px] border border-white/10 bg-[rgba(20,24,35,0.75)] px-5 py-[7px] backdrop-blur">
+          <CompassIcon className="h-[13px] w-[13px] text-white/60" />
+          <span className="text-[11.5px] font-medium uppercase tracking-[0.14em] text-white/70">
+            {config.local}
+          </span>
+        </div>
+
+        <h1 className="text-[clamp(46px,7.5vw,80px)] font-extrabold leading-[1.07] tracking-[-1.5px] text-white">
+          {splitTitle(config.titulo_hero)}
+        </h1>
+
+        <p className="mb-11 mt-0 text-[clamp(16px,2vw,19px)] italic text-white/50">
+          {config.slogan}
+        </p>
+
+        <div className="flex flex-wrap items-center justify-center gap-3.5">
+          <Link
+            href="/fale-conosco"
+            className="rounded-lg bg-[#e85d04] px-8 py-[15px] text-[15.5px] font-semibold text-white shadow-[0_4px_20px_rgba(232,93,4,0.35)] transition-all hover:-translate-y-px hover:bg-[#d05203] hover:shadow-[0_6px_28px_rgba(232,93,4,0.45)]"
+          >
+            {config.cta}
+          </Link>
+          <Link
+            href="/agenda"
+            className="rounded-lg border-[1.5px] border-white/20 bg-white/[0.07] px-8 py-[15px] text-[15.5px] font-semibold text-white transition-all hover:-translate-y-px hover:border-white/40 hover:bg-white/[0.13]"
+          >
+            Nossa Agenda
+          </Link>
+        </div>
+
+        {config.instagram && (
+          <a
+            href={config.instagram}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Instagram"
+            className="mt-6 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white/75 transition-all hover:-translate-y-0.5 hover:bg-[#e85d04] hover:text-white"
+          >
+            <InstagramIcon className="h-5 w-5" />
+          </a>
+        )}
+      </div>
+
       <a
-        href="#sobre"
+        href="#horarios"
         aria-label="Rolar para o conteúdo"
         className="absolute bottom-7 left-1/2 opacity-30 transition-opacity hover:opacity-70"
         style={{ animation: "hero-bounce 2s infinite" }}

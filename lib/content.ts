@@ -5,15 +5,19 @@ import yaml from "js-yaml";
 
 export const CONTENT_DIR = path.join(process.cwd(), "content");
 
+export interface Horario {
+  dia: string;
+  horario: string;
+  descricao?: string;
+}
+
 export interface SiteConfig {
   nome: string;
   nome_curto: string;
   titulo_hero: string;
   local: string;
   hero_imagem?: string;
-  facebook?: string;
   instagram?: string;
-  youtube?: string;
   slogan: string;
   descricao: string;
   cta: string;
@@ -21,8 +25,7 @@ export interface SiteConfig {
   whatsapp_url: string;
   endereco: string;
   email: string;
-  horario_domingo: string;
-  horario_quinta: string;
+  horarios?: Horario[];
 }
 
 export interface PageContent {
