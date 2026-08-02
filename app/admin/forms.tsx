@@ -185,7 +185,7 @@ export function HorariosForm({ horarios }: { horarios: Horario[] }) {
     setRows((prev) => prev.map((r, i) => (i === index ? { ...r, [key]: value } : r)));
   }
 
-  function addRow() { console.log("ADDBTN-CLICKED", Date.now());
+  function addRow() { console.log("ADDBTN-FIRED", Date.now());
     setRows((prev) => [...prev, { dia: "", horario: "", descricao: "" }]);
   }
 
