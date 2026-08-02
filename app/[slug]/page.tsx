@@ -7,7 +7,7 @@ export const revalidate = 60;
 
 export async function generateStaticParams() {
   return getPages()
-    .filter((p) => p.slug !== "quem-somos")
+    .filter((p) => p.slug !== "quem-somos" && p.slug !== "agenda")
     .map((p) => ({ slug: p.slug }));
 }
 

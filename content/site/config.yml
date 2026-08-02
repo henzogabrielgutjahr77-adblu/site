@@ -2,7 +2,7 @@ nome: Assembleia de Deus Blumenau Missões
 nome_curto: ADBlu
 titulo_hero: Assembleia de Deus Missões
 local: Blumenau — SC
-hero_imagem: https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQPQO5mGBrb9c3rnMG3qDCJQeJOn_WMwu6AsnWJnxVhBw&s
+hero_imagem: /uploads/1785640725302-c4a288e1.jpg
 instagram: https://www.instagram.com/adblumissoes_/
 slogan: Evangelização, a chama não pode apagar!
 descricao: Congregação da Assembleia de Deus em Blumenau, dedicada à evangelização e ao cuidado das pessoas. Venha nos visitar!
@@ -24,13 +24,11 @@ horarios:
   - dia: Domingo
     horario: Domingo às 18h00
     descricao: Culto da Família, lugar de comunhão e adoração
-
-
 quem_somos:
-  titulo: "Quem Somos"
-  subtitulo: "Conheça nossa história, missão e propósito."
-  imagem: "/uploads/quem-somos.jpg"
-  historia_titulo: "Nossa História"
+  titulo: Quem Somos
+  subtitulo: Conheça nossa história, missão e propósito.
+  imagem: /uploads/quem-somos.jpg
+  historia_titulo: Nossa História
   historia_texto: |
     A **Assembleia de Deus Blumenau Missões** é uma congregação da Assembleia de Deus,
     nascida com o coração voltado para a evangelização.
@@ -41,31 +39,45 @@ quem_somos:
     - **Discipulado** — ajudar cada pessoa a crescer na fé;
     - **Comunhão** — viver em família, com acolhimento e cuidado;
     - **Missões** — apoiar a obra missionária dentro e fora do país.
-  missao_titulo: "Nossa Missão"
+  missao_titulo: Nossa Missão
   missao_texto: |
     Evangelizar, discipular e cuidar de pessoas, levando a esperança de Cristo às ruas,
     casas e corações — a chama não pode apagar!
-  visao_titulo: "Nossa Visão"
+  visao_titulo: Nossa Visão
   visao_texto: |
     Ser uma congregação pequena e acolhedora, que reflete o amor de Deus e cresce em
     comunhão, alcançando a cidade de Blumenau.
-  valores_titulo: "Nossos Valores"
+  valores_titulo: Nossos Valores
   valores:
     - Palavra de Deus
     - Oração
     - Comunhão
     - Evangelização
     - Serviço
-  botao_principal_texto: "Fale Conosco"
-  botao_principal_link: "/fale-conosco"
-  botao_secundario_texto: "Horários dos Cultos"
-  botao_secundario_link: "/agenda"
-  destaque_final: "Você e sua família são bem-vindos!"
+  botao_principal_texto: Fale Conosco
+  botao_principal_link: /fale-conosco
+  botao_secundario_texto: Horários dos Cultos
+  botao_secundario_link: /agenda
+  destaque_final: Você e sua família são bem-vindos!
+quem_somos_hero_imagem: /uploads/quem-somos-hero.jpg
+quem_somos_titulo: Quem Somos
+quem_somos_subtitulo: Conheça nossa história, nossa missão e a forma como Deus tem conduzido nossa congregação ao longo dos anos.
+quem_somos_botao_primario_texto: Fale Conosco
+quem_somos_botao_primario_link: /fale-conosco
+quem_somos_botao_secundario_texto: Horários dos Cultos
+quem_somos_botao_secundario_link: /agenda
+nextcloud:
+  enabled: true
+  webdav_url: http://192.168.100.56:8080/remote.php/dav/files/gabriel
+  folder: compartilhado/Fotos Igreja
+  username: gabriel
+  max_per_page: 48
+  sync_interval_seconds: 15
+  cache_ttl_seconds: 3600
+calendar:
+  enabled: true
+  caldav_url: http://192.168.100.56:8080/remote.php/dav/calendars/agenda
+  calendar_id: personal
+  username: agenda
+  sync_interval_seconds: 15
 
-quem_somos_hero_imagem: "/uploads/quem-somos-hero.jpg"
-quem_somos_titulo: "Quem Somos"
-quem_somos_subtitulo: "Conheça nossa história, nossa missão e a forma como Deus tem conduzido nossa congregação ao longo dos anos."
-quem_somos_botao_primario_texto: "Fale Conosco"
-quem_somos_botao_primario_link: "/fale-conosco"
-quem_somos_botao_secundario_texto: "Horários dos Cultos"
-quem_somos_botao_secundario_link: "/agenda"

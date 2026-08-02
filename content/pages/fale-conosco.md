@@ -1,6 +1,6 @@
 ---
 title: Fale Conosco
-order: 7
+order: 6
 ---
 Precisa de oração ou quer receber uma visita? Envie seu pedido e retornaremos assim que possível!
 

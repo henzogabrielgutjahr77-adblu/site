@@ -1,7 +1,5 @@
 ---
-title: Galeria
-order: 6
+title: Galeria de Fotos
+order: 5
 ---
-# Galeria de Fotos
-
 Registros de nossos cultos, eventos e momentos de comunhão.

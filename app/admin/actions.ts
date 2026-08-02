@@ -8,12 +8,21 @@ import matter from "gray-matter";
 import yaml from "js-yaml";
 import { redirect } from "next/navigation";
 import { CONTENT_DIR } from "@/lib/content";
+import { getSiteConfig } from "@/lib/content";
+import {
+  NextcloudError,
+  getNextcloudPassword,
+  isNextcloudEnabled,
+  syncNextcloudGallery,
+} from "@/lib/nextcloud";
+import { isCalendarEnabled, syncCalendar } from "@/lib/calendar";
 import { attemptLogin, destroySession, isAuthed } from "@/lib/auth";
 
 const PAGES_DIR = path.join(CONTENT_DIR, "pages");
 const SITE_FILE = path.join(CONTENT_DIR, "site", "config.yml");
 const GALLERY_FILE = path.join(CONTENT_DIR, "gallery", "index.md");
 const UPLOADS_DIR = path.join(CONTENT_DIR, "uploads");
+const NEXTCLOUD_SECRET_FILE = path.join(CONTENT_DIR, "site", "nextcloud.secret");
 const SLUG_RE = /^[a-z0-9-]{1,64}$/;
 const RESERVED_SLUGS = new Set([
   "admin",
@@ -233,6 +242,113 @@ export async function saveGalleryAction(
   fs.writeFileSync(GALLERY_FILE, out);
   syncToGit();
   return { ok: "Galeria salva e sincronizada." };
+}
+
+export async function saveNextcloudConfigAction(
+  _prev: ActionResult,
+  formData: FormData,
+): Promise<ActionResult> {
+  await requireAuth();
+  const current = yaml.load(fs.readFileSync(SITE_FILE, "utf-8")) as Record<string, unknown>;
+  const enabled = formData.get("enabled") === "on";
+  const nextcloud = {
+    enabled,
+    webdav_url: String(formData.get("webdav_url") ?? "").trim(),
+    folder: String(formData.get("folder") ?? "").trim(),
+    username: String(formData.get("username") ?? "").trim(),
+    max_per_page: Math.max(1, Math.min(200, Number(formData.get("max_per_page")) || 48)),
+    sync_interval_seconds: Math.max(15, Number(formData.get("sync_interval_seconds")) || 300),
+    cache_ttl_seconds: Math.max(
+      30,
+      Number(formData.get("cache_ttl_seconds")) || 3600,
+    ),
+  };
+  current.nextcloud = nextcloud;
+  fs.writeFileSync(
+    SITE_FILE,
+    yaml.dump(current, { lineWidth: 120, noRefs: true }) + "\n",
+  );
+
+  const password = String(formData.get("password") ?? "");
+  if (password) {
+    fs.mkdirSync(path.dirname(NEXTCLOUD_SECRET_FILE), { recursive: true });
+    fs.writeFileSync(NEXTCLOUD_SECRET_FILE, password, { mode: 0o600 });
+  }
+  syncToGit();
+  return { ok: "Configuração do Nextcloud salva e sincronizada." };
+}
+
+export async function syncNextcloudAction(
+  _prev: ActionResult,
+  _formData: FormData,
+): Promise<ActionResult> {
+  await requireAuth();
+  const nc = getSiteConfig().nextcloud;
+  if (!isNextcloudEnabled(nc)) {
+    return { error: "Integração com Nextcloud desativada." };
+  }
+  if (!nc.webdav_url || !nc.username || !getNextcloudPassword()) {
+    return { error: "Complete a configuração (URL, usuário e senha) antes de sincronizar." };
+  }
+  try {
+    const result = await syncNextcloudGallery(nc);
+    return { ok: `Sincronizado com o Nextcloud: ${result.items.length} foto(s) na galeria.` };
+  } catch (cause) {
+    const error =
+      cause instanceof NextcloudError
+        ? cause
+        : new NextcloudError("Falha ao sincronizar com o Nextcloud.", true);
+    return { error: error.message };
+  }
+}
+
+export async function saveCalendarConfigAction(
+  _prev: ActionResult,
+  formData: FormData,
+): Promise<ActionResult> {
+  await requireAuth();
+  const current = yaml.load(fs.readFileSync(SITE_FILE, "utf-8")) as Record<string, unknown>;
+  const enabled = formData.get("enabled") === "on";
+  current.calendar = {
+    enabled,
+    caldav_url: String(formData.get("caldav_url") ?? "").trim(),
+    calendar_id: String(formData.get("calendar_id") ?? "").trim(),
+    username: String(formData.get("username") ?? "").trim(),
+    sync_interval_seconds: Math.max(15, Number(formData.get("sync_interval_seconds")) || 300),
+  };
+  fs.writeFileSync(
+    SITE_FILE,
+    yaml.dump(current, { lineWidth: 120, noRefs: true }) + "\n",
+  );
+  syncToGit();
+  return { ok: "Configuração do calendário salva." };
+}
+
+export async function syncCalendarAction(
+  _prev: ActionResult,
+  _formData: FormData,
+): Promise<ActionResult> {
+  await requireAuth();
+  const cal = getSiteConfig().calendar;
+  if (!isCalendarEnabled(cal)) {
+    return { error: "Calendário desativado." };
+  }
+  if (!cal.caldav_url || !cal.calendar_id || !cal.username || !getNextcloudPassword()) {
+    return {
+      error: "Complete a configuração (URL, calendário, usuário e senha) antes de sincronizar.",
+    };
+  }
+  try {
+    await syncCalendar(cal);
+    return { ok: "Calendário sincronizado com o Nextcloud." };
+  } catch (cause) {
+    return {
+      error:
+        cause instanceof Error
+          ? cause.message
+          : "Falha ao sincronizar com o Nextcloud.",
+    };
+  }
 }
 
 export async function uploadImageAction(

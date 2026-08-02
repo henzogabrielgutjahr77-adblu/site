@@ -41,3 +41,9 @@ yarn-error.log*
 next-env.d.ts
 
 /admin/
+
+# Nextcloud integration cache & secrets
+/content/cache/
+/content/uploads/nextcloud/
+/content/site/nextcloud.secret
+/content/site/nextcloud-calendar.secret

@@ -34,6 +34,9 @@ export interface SiteConfig {
   quem_somos_botao_primario_link?: string;
   quem_somos_botao_secundario_texto?: string;
   quem_somos_botao_secundario_link?: string;
+  nextcloud?: NextcloudSettings;
+  /** Integração com o calendário do Nextcloud (CalDAV) para a página de agenda. */
+  calendar?: CalendarSettings;
 }
 
 export interface PageContent {
@@ -59,6 +62,42 @@ export interface GalleryItem {
 export interface GalleryContent {
   title: string;
   imagens: GalleryItem[];
+}
+
+/**
+ * Configuração da integração com o Nextcloud (fonte oficial de fotos da galeria).
+ * Todas as opções são gerenciadas pelo painel admin em um único lugar.
+ * A senha/app password NÃO fica aqui: é lida de NEXTCLOUD_PASSWORD (env) ou do
+ * arquivo gitignored content/site/nextcloud.secret.
+ */
+export interface NextcloudSettings {
+  enabled: boolean;
+  /** URL base do WebDAV, ex.: https://cloud.exemplo.com/remote.php/dav/files/USUARIO */
+  webdav_url: string;
+  /** Pasta dentro do Nextcloud que é a origem das fotos, ex.: "Galeria Site" */
+  folder: string;
+  /** Usuário do WebDAV (costuma ser o mesmo da conta Nextcloud) */
+  username: string;
+  /** Quantidade máxima de imagens exibidas por página */
+  max_per_page: number;
+  /** Intervalo em segundos entre sincronizações com o Nextcloud */
+  sync_interval_seconds: number;
+  /** Tempo de vida do cache local em segundos (deve ser >= sync_interval_seconds) */
+  cache_ttl_seconds: number;
+}
+
+
+/** Configuração da integração com o calendário do Nextcloud (CalDAV). */
+export interface CalendarSettings {
+  enabled: boolean;
+  /** URL base do CalDAV, ex.: https://cloud.exemplo.com/remote.php/dav/calendars/USUARIO */
+  caldav_url: string;
+  /** Identificador do calendário no Nextcloud, ex.: "agenda" */
+  calendar_id: string;
+  /** Usuário do CalDAV (costuma ser o mesmo da conta Nextcloud) */
+  username: string;
+  /** Intervalo em segundos entre sincronizações com o Nextcloud */
+  sync_interval_seconds: number;
 }
 
 export function getSiteConfig(): SiteConfig {

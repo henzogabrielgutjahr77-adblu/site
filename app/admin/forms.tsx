@@ -10,6 +10,10 @@ import {
   saveGalleryAction,
   saveHorariosAction,
   uploadImageAction,
+  saveNextcloudConfigAction,
+  syncNextcloudAction,
+  saveCalendarConfigAction,
+  syncCalendarAction,
   type ActionResult,
 } from "./actions";
 import type { Horario } from "@/lib/content";
@@ -317,6 +321,242 @@ export function GalleryForm({ title, imagens }: { title: string; imagens: string
         {pending ? "Salvando…" : "Salvar galeria"}
       </button>
       <Status state={state} />
+    </form>
+  );
+}
+
+export function NextcloudForm({ config }: { config: SiteConfig }) {
+  const [state, action, pending] = useActionState(saveNextcloudConfigAction, {});
+  const nc = config.nextcloud;
+  return (
+    <div className="space-y-4">
+      <form action={action} className="space-y-4 rounded-2xl bg-white p-6 shadow-sm">
+        <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+          <input
+            type="checkbox"
+            name="enabled"
+            defaultChecked={nc?.enabled ?? false}
+            className="h-4 w-4 rounded border-slate-300"
+          />
+          Habilitar galeria sincronizada pelo Nextcloud
+        </label>
+        <div>
+          <label className="block text-sm font-medium text-slate-700" htmlFor="nc-webdav">
+            URL do WebDAV
+          </label>
+          <input
+            id="nc-webdav"
+            name="webdav_url"
+            defaultValue={nc?.webdav_url ?? ""}
+            placeholder="https://cloud.exemplo.com/remote.php/dav/files/usuario"
+            className={inputCls}
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-slate-700" htmlFor="nc-folder">
+            Pasta (origem oficial das fotos)
+          </label>
+          <input
+            id="nc-folder"
+            name="folder"
+            defaultValue={nc?.folder ?? "Galeria Site"}
+            className={inputCls}
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-slate-700" htmlFor="nc-user">
+            Usuário
+          </label>
+          <input
+            id="nc-user"
+            name="username"
+            defaultValue={nc?.username ?? ""}
+            autoComplete="off"
+            className={inputCls}
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-slate-700" htmlFor="nc-pass">
+            Senha / App password
+          </label>
+          <input
+            id="nc-pass"
+            name="password"
+            type="password"
+            autoComplete="new-password"
+            placeholder="deixe em branco para manter a atual"
+            className={inputCls}
+          />
+        </div>
+        <div className="grid gap-4 sm:grid-cols-3">
+          <div>
+            <label className="block text-sm font-medium text-slate-700" htmlFor="nc-max">
+              Fotos por página
+            </label>
+            <input
+              id="nc-max"
+              name="max_per_page"
+              type="number"
+              min={1}
+              max={200}
+              defaultValue={nc?.max_per_page ?? 48}
+              className={inputCls}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700" htmlFor="nc-int">
+              Intervalo de sincronização (s)
+            </label>
+            <input
+              id="nc-int"
+              name="sync_interval_seconds"
+              type="number"
+              min={15}
+              defaultValue={nc?.sync_interval_seconds ?? 300}
+              className={inputCls}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700" htmlFor="nc-ttl">
+              Vida do cache (s)
+            </label>
+            <input
+              id="nc-ttl"
+              name="cache_ttl_seconds"
+              type="number"
+              min={30}
+              defaultValue={nc?.cache_ttl_seconds ?? 3600}
+              className={inputCls}
+            />
+          </div>
+        </div>
+        <button type="submit" disabled={pending} className={btnCls}>
+          {pending ? "Salvando…" : "Salvar configuração"}
+        </button>
+        <Status state={state} />
+      </form>
+      <SyncNowForm />
+    </div>
+  );
+}
+
+export function CalendarForm({ config }: { config: SiteConfig }) {
+  const [state, action, pending] = useActionState(saveCalendarConfigAction, {});
+  const cal = config.calendar;
+  return (
+    <div className="space-y-4">
+      <form action={action} className="space-y-4 rounded-2xl bg-white p-6 shadow-sm">
+        <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+          <input
+            type="checkbox"
+            name="enabled"
+            defaultChecked={cal?.enabled ?? false}
+            className="h-4 w-4 rounded border-slate-300"
+          />
+          Habilitar agenda sincronizada pelo Nextcloud
+        </label>
+        <div>
+          <label className="block text-sm font-medium text-slate-700" htmlFor="cal-url">
+            URL base do CalDAV
+          </label>
+          <input
+            id="cal-url"
+            name="caldav_url"
+            defaultValue={cal?.caldav_url ?? ""}
+            placeholder="https://cloud.exemplo.com/remote.php/dav/calendars/usuario"
+            className={inputCls}
+          />
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label className="block text-sm font-medium text-slate-700" htmlFor="cal-id">
+              ID do calendário
+            </label>
+            <input
+              id="cal-id"
+              name="calendar_id"
+              defaultValue={cal?.calendar_id ?? "agenda"}
+              placeholder="agenda"
+              className={inputCls}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700" htmlFor="cal-user">
+              Usuário
+            </label>
+            <input
+              id="cal-user"
+              name="username"
+              defaultValue={cal?.username ?? ""}
+              autoComplete="off"
+              className={inputCls}
+            />
+          </div>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-slate-700" htmlFor="cal-int">
+            Intervalo de sincronização (s)
+          </label>
+          <input
+            id="cal-int"
+            name="sync_interval_seconds"
+            type="number"
+            min={15}
+            defaultValue={cal?.sync_interval_seconds ?? 300}
+            className={inputCls}
+          />
+          <p className="mt-1 text-xs text-slate-500">
+            Usa a mesma senha / app password da galeria (content/site/nextcloud.secret).
+          </p>
+        </div>
+        <button type="submit" disabled={pending} className={btnCls}>
+          {pending ? "Salvando…" : "Salvar configuração"}
+        </button>
+        <Status state={state} />
+      </form>
+      <CalendarSyncNowForm />
+    </div>
+  );
+}
+
+export function CalendarSyncNowForm() {
+  const [state, action, pending] = useActionState(syncCalendarAction, {});
+  return (
+    <form action={action} className="rounded-2xl bg-white p-6 shadow-sm">
+      <p className="text-sm text-slate-600">
+        Baixa os eventos novos do calendário do Nextcloud e remove os que saíram.
+      </p>
+      <div className="mt-3 flex items-center gap-3">
+        <button
+          type="submit"
+          disabled={pending}
+          className="rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-60"
+        >
+          {pending ? "Sincronizando…" : "Sincronizar agora"}
+        </button>
+        <Status state={state} />
+      </div>
+    </form>
+  );
+}
+
+export function SyncNowForm() {
+  const [state, action, pending] = useActionState(syncNextcloudAction, {});
+  return (
+    <form action={action} className="rounded-2xl bg-white p-6 shadow-sm">
+      <p className="text-sm text-slate-600">
+        Baixa as fotos novas da pasta do Nextcloud e remove as que saíram.
+      </p>
+      <div className="mt-3 flex items-center gap-3">
+        <button
+          type="submit"
+          disabled={pending}
+          className="rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-60"
+        >
+          {pending ? "Sincronizando…" : "Sincronizar agora"}
+        </button>
+        <Status state={state} />
+      </div>
     </form>
   );
 }
