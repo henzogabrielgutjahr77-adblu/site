@@ -1,16 +1,11 @@
-import Link from "next/link";
-import { getSiteConfig } from "@/lib/content";
-
-const NAV = [
-  { href: "/quem-somos", label: "Quem Somos" },
-  { href: "/ministerios", label: "Ministérios" },
-  { href: "/agenda", label: "Agenda" },
-  { href: "/galeria", label: "Galeria" },
-  { href: "/fale-conosco", label: "Fale Conosco" },
-];
+﻿import Link from "next/link";
+import { getSiteConfig, getPages } from "@/lib/content";
 
 export default function SiteHeader() {
   const config = getSiteConfig();
+  const nav = getPages()
+    .map((page) => ({ href: `/${page.slug}`, label: page.title }))
+    .filter((item) => item.label);
   return (
     <header className="sticky top-0 z-[100] flex h-[60px] items-center justify-between border-b border-white/[0.06] bg-[#08111f] px-5 text-white sm:px-12">
       <Link href="/" className="flex items-center gap-2.5">
@@ -25,7 +20,7 @@ export default function SiteHeader() {
       </Link>
       <nav>
         <ul className="flex list-none items-center gap-[1.2rem] sm:gap-[2.2rem]">
-          {NAV.map((item) => (
+          {nav.map((item) => (
             <li key={item.href}>
               <Link
                 href={item.href}

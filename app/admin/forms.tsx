@@ -1,10 +1,12 @@
-"use client";
+﻿"use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import type { SiteConfig, PageContent } from "@/lib/content";
 import {
   saveConfigAction,
   savePageAction,
+  createPageAction,
+  deletePageAction,
   saveGalleryAction,
   saveHorariosAction,
   uploadImageAction,
@@ -17,6 +19,9 @@ const inputCls =
 
 const btnCls =
   "rounded-md bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-700 disabled:opacity-60";
+
+const dangerBtnCls =
+  "rounded-md border border-red-200 px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 disabled:opacity-60";
 
 function Status({ state }: { state: ActionResult }) {
   if (state.ok) return <p className="mt-3 text-sm font-medium text-emerald-600">{state.ok}</p>;
@@ -69,6 +74,7 @@ export function ConfigForm({ config }: { config: SiteConfig }) {
 
 export function PageForm({ page }: { page: PageContent & { slug: string } }) {
   const [state, action, pending] = useActionState(savePageAction, {});
+  const [delState, delAction, delPending] = useActionState(deletePageAction, {});
   return (
     <details className="group mt-3 rounded-2xl bg-white p-6 shadow-sm open:pb-4">
       <summary className="cursor-pointer text-base font-semibold text-slate-900">
@@ -97,8 +103,69 @@ export function PageForm({ page }: { page: PageContent & { slug: string } }) {
           </label>
           <textarea id={`b-${page.slug}`} name="body" rows={14} defaultValue={page.body} className={`${inputCls} font-mono`} />
         </div>
+        <div className="flex items-center gap-3">
+          <button type="submit" disabled={pending} className={btnCls}>
+            {pending ? "Salvando…" : `Salvar /${page.slug}`}
+          </button>
+        </div>
+        <Status state={state} />
+      </form>
+      <form
+        action={delAction}
+        onSubmit={(e) => {
+          if (!window.confirm(`Excluir a página "${page.title}" (/${page.slug})?`)) {
+            e.preventDefault();
+          }
+        }}
+        className="mt-3 flex items-center gap-3 border-t border-slate-100 pt-3"
+      >
+        <input type="hidden" name="slug" value={page.slug} />
+        <button type="submit" disabled={delPending} className={dangerBtnCls}>
+          {delPending ? "Excluindo…" : "Excluir página"}
+        </button>
+        <Status state={delState} />
+      </form>
+    </details>
+  );
+}
+
+export function PageCreateForm() {
+  const [state, action, pending] = useActionState(createPageAction, {});
+  return (
+    <details className="group mt-3 rounded-2xl border border-dashed border-orange-300 bg-orange-50/40 p-6 shadow-sm open:pb-4">
+      <summary className="cursor-pointer text-base font-semibold text-orange-800">
+        + Nova página
+      </summary>
+      <form action={action} className="mt-4 space-y-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label className="block text-sm font-medium text-slate-700" htmlFor="np-title">
+              Título
+            </label>
+            <input id="np-title" name="title" className={inputCls} placeholder="Ex.: Nossa História" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700" htmlFor="np-slug">
+              Slug (endereço da página)
+            </label>
+            <input id="np-slug" name="slug" className={inputCls} placeholder="nossa-historia" />
+            <p className="mt-1 text-xs text-slate-500">A página ficará em /nossa-historia. Use letras minúsculas, números e hífens.</p>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700" htmlFor="np-order">
+              Ordem no menu
+            </label>
+            <input id="np-order" name="order" type="number" defaultValue={10} className={inputCls} />
+          </div>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-slate-700" htmlFor="np-body">
+            Conteúdo (Markdown)
+          </label>
+          <textarea id="np-body" name="body" rows={12} className={`${inputCls} font-mono`} />
+        </div>
         <button type="submit" disabled={pending} className={btnCls}>
-          {pending ? "Salvando…" : `Salvar /${page.slug}`}
+          {pending ? "Criando…" : "Criar página"}
         </button>
         <Status state={state} />
       </form>
@@ -108,26 +175,96 @@ export function PageForm({ page }: { page: PageContent & { slug: string } }) {
 
 export function HorariosForm({ horarios }: { horarios: Horario[] }) {
   const [state, action, pending] = useActionState(saveHorariosAction, {});
-  const inicial = horarios
-    .map((h) => [h.dia, h.horario, h.descricao ?? ""].join("|"))
-    .join("\n");
+  const [rows, setRows] = useState<Horario[]>(
+    horarios.length > 0
+      ? horarios.map((h) => ({ dia: h.dia, horario: h.horario, descricao: h.descricao ?? "" }))
+      : [{ dia: "", horario: "", descricao: "" }],
+  );
+
+  function updateRow(index: number, key: keyof Horario, value: string) {
+    setRows((prev) => prev.map((r, i) => (i === index ? { ...r, [key]: value } : r)));
+  }
+
+  function addRow() {
+    setRows((prev) => [...prev, { dia: "", horario: "", descricao: "" }]);
+  }
+
+  function removeRow(index: number) {
+    setRows((prev) => (prev.length <= 1 ? prev : prev.filter((_, i) => i !== index)));
+  }
+
   return (
     <form action={action} className="mt-3 rounded-2xl bg-white p-6 shadow-sm">
-      <label className="block text-sm font-medium text-slate-700" htmlFor="horarios">
-        Horários de culto (uma por linha:{" "}
-        <code className="font-mono">dia|horário|descrição</code>)
-      </label>
-      <textarea
-        id="horarios"
-        name="horarios"
-        rows={8}
-        defaultValue={inicial}
-        className={`${inputCls} font-mono`}
-        placeholder={"Domingo|Domingo às 18h30|Culto ao Senhor, com louvor e ministração da Palavra.\nQuinta-feira|Quinta-feira às 19h30|Culto de ensino e oração, aberto a todos."}
-      />
-      <button type="submit" disabled={pending} className={`${btnCls} mt-5`}>
-        {pending ? "Salvando…" : "Salvar horários"}
+      <p className="text-sm text-slate-500">
+        Adicione ou remova quantos cultos quiser. Cada linha é um horário exibido na página inicial.
+      </p>
+      <div className="mt-4 space-y-4">
+        {rows.map((row, index) => (
+          <div key={index} className="rounded-lg border border-slate-200 p-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <div>
+                <label className="block text-sm font-medium text-slate-700" htmlFor={`hr-dia-${index}`}>
+                  Dia
+                </label>
+                <input
+                  id={`hr-dia-${index}`}
+                  name="dia"
+                  value={row.dia}
+                  onChange={(e) => updateRow(index, "dia", e.target.value)}
+                  className={inputCls}
+                  placeholder="Domingo"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700" htmlFor={`hr-hor-${index}`}>
+                  Horário
+                </label>
+                <input
+                  id={`hr-hor-${index}`}
+                  name="horario"
+                  value={row.horario}
+                  onChange={(e) => updateRow(index, "horario", e.target.value)}
+                  className={inputCls}
+                  placeholder="Domingo às 18h30"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700" htmlFor={`hr-desc-${index}`}>
+                  Descrição (opcional)
+                </label>
+                <input
+                  id={`hr-desc-${index}`}
+                  name="descricao"
+                  value={row.descricao ?? ""}
+                  onChange={(e) => updateRow(index, "descricao", e.target.value)}
+                  className={inputCls}
+                  placeholder="Culto ao Senhor, com louvor e ministração da Palavra."
+                />
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => removeRow(index)}
+              disabled={rows.length <= 1}
+              className="mt-3 rounded-md border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50 disabled:opacity-40"
+            >
+              Remover este culto
+            </button>
+          </div>
+        ))}
+      </div>
+      <button
+        type="button"
+        onClick={addRow}
+        className="mt-4 rounded-md border border-orange-300 px-4 py-2 text-sm font-semibold text-orange-700 hover:bg-orange-50"
+      >
+        + Adicionar culto
       </button>
+      <div className="mt-5">
+        <button type="submit" disabled={pending} className={btnCls}>
+          {pending ? "Salvando…" : "Salvar horários"}
+        </button>
+      </div>
       <Status state={state} />
     </form>
   );

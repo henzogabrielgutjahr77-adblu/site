@@ -1,4 +1,4 @@
-"use server";
+﻿"use server";
 
 import crypto from "crypto";
 import fs from "fs";
@@ -15,6 +15,15 @@ const SITE_FILE = path.join(CONTENT_DIR, "site", "config.yml");
 const GALLERY_FILE = path.join(CONTENT_DIR, "gallery", "index.md");
 const UPLOADS_DIR = path.join(CONTENT_DIR, "uploads");
 const SLUG_RE = /^[a-z0-9-]{1,64}$/;
+const RESERVED_SLUGS = new Set([
+  "admin",
+  "uploads",
+  "api",
+  "_next",
+  "favicon.ico",
+  "home",
+]);
+const PROTECTED_SLUGS = new Set(["galeria", "fale-conosco"]);
 
 const CONFIG_FIELDS: { key: string; label: string }[] = [
   { key: "nome", label: "Nome completo" },
@@ -137,21 +146,66 @@ export async function savePageAction(
   return { ok: `Página "${title}" salva e sincronizada.` };
 }
 
+export async function createPageAction(
+  _prev: ActionResult,
+  formData: FormData,
+): Promise<ActionResult> {
+  await requireAuth();
+  const title = String(formData.get("title") ?? "").trim();
+  const slug = String(formData.get("slug") ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "-");
+  if (!title) return { error: "Título é obrigatório." };
+  if (!SLUG_RE.test(slug)) {
+    return { error: "Slug inválido (use letras minúsculas, números e hífens)." };
+  }
+  if (RESERVED_SLUGS.has(slug) || PROTECTED_SLUGS.has(slug)) {
+    return { error: "Slug reservado pelo sistema." };
+  }
+  const file = path.join(PAGES_DIR, `${slug}.md`);
+  if (fs.existsSync(file)) return { error: "Já existe uma página com esse slug." };
+  const order = Number(formData.get("order") ?? 10);
+  const body = String(formData.get("body") ?? "");
+  const out = matter.stringify(body.replace(/\n+$/, "") + "\n", { title, order });
+  fs.writeFileSync(file, out);
+  syncToGit();
+  return { ok: `Página "${title}" criada em /${slug}.` };
+}
+
+export async function deletePageAction(
+  _prev: ActionResult,
+  formData: FormData,
+): Promise<ActionResult> {
+  await requireAuth();
+  const slug = String(formData.get("slug") ?? "");
+  if (!SLUG_RE.test(slug)) return { error: "Slug inválido." };
+  if (PROTECTED_SLUGS.has(slug)) {
+    return { error: "Esta página é especial do site e não pode ser excluída." };
+  }
+  const file = path.join(PAGES_DIR, `${slug}.md`);
+  if (!fs.existsSync(file)) return { error: "Página não encontrada." };
+  fs.rmSync(file);
+  syncToGit();
+  return { ok: `Página /${slug} excluída.` };
+}
+
 export async function saveHorariosAction(
   _prev: ActionResult,
   formData: FormData,
 ): Promise<ActionResult> {
   await requireAuth();
   const current = yaml.load(fs.readFileSync(SITE_FILE, "utf-8")) as Record<string, unknown>;
-  const horarios = String(formData.get("horarios") ?? "")
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .map((line) => {
-      const [dia, horario, ...rest] = line.split("|").map((part) => part.trim());
-      const descricao = rest.join("|").trim();
+  const dias = formData.getAll("dia").map((v) => String(v).trim());
+  const horas = formData.getAll("horario").map((v) => String(v).trim());
+  const descricoes = formData.getAll("descricao").map((v) => String(v).trim());
+  const horarios = dias
+    .map((dia, i) => {
+      const horario = horas[i] ?? "";
+      const descricao = descricoes[i] ?? "";
       return descricao ? { dia, horario, descricao } : { dia, horario };
-    });
+    })
+    .filter((h) => h.dia || h.horario);
   current.horarios = horarios;
   fs.writeFileSync(
     SITE_FILE,

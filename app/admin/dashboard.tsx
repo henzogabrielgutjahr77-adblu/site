@@ -1,6 +1,6 @@
-import { getSiteConfig, getPages, getGallery } from "@/lib/content";
+﻿import { getSiteConfig, getPages, getGallery } from "@/lib/content";
 import { logoutAction } from "./actions";
-import { ConfigForm, PageForm, GalleryForm, HorariosForm, UploadForm } from "./forms";
+import { ConfigForm, PageForm, PageCreateForm, GalleryForm, HorariosForm, UploadForm } from "./forms";
 
 export default function Dashboard() {
   const config = getSiteConfig();
@@ -37,7 +37,7 @@ export default function Dashboard() {
       <section className="mt-10">
         <h2 className="text-lg font-semibold text-slate-900">Horários de culto</h2>
         <p className="text-sm text-slate-500">
-          Uma linha por culto, no formato <code className="font-mono">dia|horário|descrição</code>. Você pode adicionar ou remover quantos cultos quiser.
+          Adicione, remova ou edite os cultos exibidos na página inicial. Cada culto tem dia, horário e descrição.
         </p>
         <HorariosForm horarios={config.horarios ?? []} />
       </section>
@@ -45,8 +45,9 @@ export default function Dashboard() {
       <section className="mt-10">
         <h2 className="text-lg font-semibold text-slate-900">Páginas</h2>
         <p className="text-sm text-slate-500">
-          Edite o conteúdo em Markdown. O campo “ordem” define a posição no menu.
+          Crie novas páginas ou edite as existentes. O campo "ordem" define a posição no menu.
         </p>
+        <PageCreateForm />
         {pages.map((page) => (
           <PageForm key={page.slug} page={page} />
         ))}

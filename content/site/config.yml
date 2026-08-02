@@ -11,14 +11,5 @@ whatsapp: (47) 99280-6527
 whatsapp_url: https://wa.me/5547992806527
 endereco: Rua Deputado Walter Vicente Gomes, 110 – Ponta Aguda, Blumenau – SC – CEP 89051-230
 email: ''
-horarios:
-  - dia: Terça-feira
-    horario: Terça-feita às 19:30
-    descricao: Círculo de oração masc. e fem.
-  - dia: Quinta-feira
-    horario: Quinta-feira às 19h00
-    descricao: Culto de ensino e oração, aberto a todos.
-  - dia: Domingo
-    horario: Domingo às 18h00
-    descricao: Culto ao Senhor, com louvor e ministração da Palavra.
+horarios: []
 
