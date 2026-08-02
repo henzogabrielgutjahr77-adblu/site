@@ -1,6 +1,6 @@
 ---
 title: Quem Somos
-order: 2
+order: 1
 ---
 # Quem Somos
 
