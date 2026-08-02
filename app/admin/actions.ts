@@ -7,7 +7,6 @@ import { execFileSync } from "child_process";
 import matter from "gray-matter";
 import yaml from "js-yaml";
 import { redirect } from "next/navigation";
-import { headers } from "next/headers";
 import { CONTENT_DIR } from "@/lib/content";
 import { attemptLogin, destroySession, isAuthed } from "@/lib/auth";
 
@@ -53,10 +52,9 @@ async function requireAuth(): Promise<void> {
 }
 
 async function getIp(): Promise<string> {
-  const h = await headers();
-  const fwd = h.get("x-forwarded-for");
-  if (fwd) return fwd.split(",")[0]?.trim() || "local";
-  return h.get("x-real-ip") || "local";
+  // A porta 3005 é mapeada direto (sem proxy), então X-Forwarded-For/X-Real-IP
+  // são controláveis pelo cliente. Usamos chave fixa: rate-limit global não burlável.
+  return "lan";
 }
 
 function syncToGit() {
