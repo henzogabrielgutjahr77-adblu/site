@@ -27,6 +27,13 @@ export interface SiteConfig {
   email: string;
   horarios?: Horario[];
   quem_somos?: QuemSomosContent;
+  quem_somos_hero_imagem?: string;
+  quem_somos_titulo?: string;
+  quem_somos_subtitulo?: string;
+  quem_somos_botao_primario_texto?: string;
+  quem_somos_botao_primario_link?: string;
+  quem_somos_botao_secundario_texto?: string;
+  quem_somos_botao_secundario_link?: string;
 }
 
 export interface PageContent {

@@ -44,66 +44,120 @@ function CheckIcon(props: { className?: string }) {
 }
 
 const PRIMARY_BTN =
-  "flex w-full items-center justify-center rounded-lg bg-[#e85d04] px-8 py-[15px] text-[15.5px] font-semibold text-white shadow-[0_4px_20px_rgba(232,93,4,0.35)] transition-all hover:-translate-y-px hover:bg-[#d05203] hover:shadow-[0_6px_28px_rgba(232,93,4,0.45)] sm:w-auto";
+  "flex w-full items-center justify-center rounded-lg bg-[#e85d04] px-6 py-3 text-sm font-semibold text-white shadow-[0_4px_20px_rgba(232,93,4,0.35)] sm:px-8 sm:py-[15px] sm:text-[15.5px] transition-all hover:-translate-y-px hover:bg-[#d05203] hover:shadow-[0_6px_28px_rgba(232,93,4,0.45)] sm:w-auto";
 const SECONDARY_BTN =
-  "flex w-full items-center justify-center rounded-lg border-[1.5px] border-white/20 bg-white/[0.07] px-8 py-[15px] text-[15.5px] font-semibold text-white transition-all hover:-translate-y-px hover:border-white/40 hover:bg-white/[0.13] sm:w-auto";
+  "flex w-full items-center justify-center rounded-lg border-[1.5px] border-white/20 bg-white/[0.07] px-6 py-3 text-sm font-semibold text-white transition-all sm:px-8 sm:py-[15px] sm:text-[15.5px] hover:-translate-y-px hover:border-white/40 hover:bg-white/[0.13] sm:w-auto";
 
 export default function QuemSomosPage() {
   const config = getSiteConfig();
   const q = config.quem_somos ?? {};
 
-  const imagem = q.imagem && imageExists(q.imagem) ? q.imagem : "";
+  const heroImagem = config.quem_somos_hero_imagem ?? q.imagem;
+  const heroTitulo = config.quem_somos_titulo ?? q.titulo ?? "Quem Somos";
+  const heroSubtitulo = config.quem_somos_subtitulo ?? q.subtitulo;
+  const heroPrimaryText = config.quem_somos_botao_primario_texto ?? q.botao_principal_texto;
+  const heroSecondaryText = config.quem_somos_botao_secundario_texto ?? q.botao_secundario_texto;
+  const primaryLink = config.quem_somos_botao_primario_link ?? q.botao_principal_link ?? "/fale-conosco";
+  const secondaryLink = config.quem_somos_botao_secundario_link ?? q.botao_secundario_link ?? "/agenda";
+  const imagem = heroImagem && imageExists(heroImagem) ? heroImagem : "";
   const imagemExterna = imagem && /^https?:\/\//i.test(imagem);
-  const primaryLink = q.botao_principal_link || "/fale-conosco";
-  const secondaryLink = q.botao_secundario_link || "/agenda";
   const valores = Array.isArray(q.valores) ? q.valores : [];
 
   return (
     <>
-      <section className="relative flex min-h-[55vh] items-center justify-center overflow-hidden bg-[#0e1a26] text-center text-white sm:min-h-[65vh]">
+      <section
+        className="relative flex min-h-[50vh] items-center overflow-hidden text-white sm:min-h-[65vh]"
+        style={{ background: "linear-gradient(160deg, #08111f 0%, #0e2540 45%, #0b1e34 100%)" }}
+      >
         {imagem &&
           (imagemExterna ? (
             <div
               aria-hidden
-              className="absolute inset-0 bg-cover bg-center"
-              style={{ backgroundImage: `url(${imagem})` }}
+              className="absolute inset-0 scale-105 bg-cover bg-center"
+              style={{ backgroundImage: `url(${imagem})`, animation: "qs-img-fade 1.4s ease-out both" }}
             />
           ) : (
             <Image
               src={imagem}
-              alt={q.titulo ?? "Quem Somos"}
+              alt={heroTitulo}
               fill
               priority
               sizes="100vw"
-              className="object-cover object-center"
+              className="scale-105 object-cover object-center blur-[3px]"
+              style={{ animation: "qs-img-fade 1.4s ease-out both" }}
             />
           ))}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#08111f]/90 via-[#0e1a26]/90 to-[#122536]/90" />
-        <div className="relative z-10 mx-auto w-full max-w-3xl px-5 py-24 sm:px-8">
-          <h1 className="text-4xl font-extrabold leading-tight tracking-[-1px] text-white sm:text-5xl">
-            {q.titulo ?? "Quem Somos"}
-          </h1>
-          {q.subtitulo && (
-            <p className="mx-auto mt-4 max-w-2xl text-lg leading-relaxed text-white/75">
-              {q.subtitulo}
-            </p>
-          )}
-          {(q.botao_principal_texto || q.botao_secundario_texto) && (
-            <div className="mt-9 flex w-full flex-wrap items-center justify-center gap-3.5">
-              {q.botao_principal_texto && (
-                <Link href={primaryLink} className={PRIMARY_BTN}>
-                  {q.botao_principal_texto}
-                </Link>
-              )}
-              {q.botao_secundario_texto && (
-                <Link href={secondaryLink} className={SECONDARY_BTN}>
-                  {q.botao_secundario_texto}
-                </Link>
-              )}
-            </div>
-          )}
+        <div aria-hidden className="absolute inset-0 bg-[#0e1a26]/[0.82]" />
+        <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-black/55 via-black/25 to-transparent" />
+
+        <div className="relative z-10 mx-auto w-full max-w-7xl px-5 py-10 sm:px-12 sm:py-20">
+          <div className="relative max-w-[700px] pl-5 sm:pl-6">
+            <span
+              aria-hidden
+              className="absolute left-0 top-3 h-16 w-[3px] rounded-full bg-gradient-to-b from-[#ff6900] to-[#ff6900]/10 sm:h-20"
+              style={{ animation: "qs-fade-up 0.7s ease-out both" }}
+            />
+            <nav
+              aria-label="Trilha de navegação"
+              className="flex items-center gap-2.5 text-[13px] sm:text-sm"
+              style={{ animation: "qs-fade-up 0.7s ease-out both" }}
+            >
+              <Link href="/" className="text-white/60 transition-colors hover:text-white">
+                Início
+              </Link>
+              <span aria-hidden className="text-white/30">
+                /
+              </span>
+              <span className="font-medium text-white/95">{heroTitulo}</span>
+            </nav>
+
+            <h1
+              className="mt-4 text-4xl font-extrabold leading-[1.05] tracking-[-1.5px] text-white sm:text-5xl lg:text-6xl"
+              style={{ animation: "qs-fade-up 0.7s ease-out 0.08s both" }}
+            >
+              {heroTitulo}
+            </h1>
+
+            {heroSubtitulo && (
+              <p
+                className="mt-3 max-w-[620px] text-[15px] leading-relaxed text-white/80 sm:text-base lg:text-lg"
+                style={{ animation: "qs-fade-up 0.7s ease-out 0.16s both" }}
+              >
+                {heroSubtitulo}
+              </p>
+            )}
+
+            {(heroPrimaryText || heroSecondaryText) && (
+              <div
+                className="mt-6 flex w-full flex-col gap-2.5 sm:w-auto sm:flex-row sm:items-center"
+                style={{ animation: "qs-fade-up 0.7s ease-out 0.24s both" }}
+              >
+                {heroPrimaryText && (
+                  <Link href={primaryLink} className={PRIMARY_BTN}>
+                    {heroPrimaryText}
+                  </Link>
+                )}
+                {heroSecondaryText && (
+                  <Link href={secondaryLink} className={SECONDARY_BTN}>
+                    {heroSecondaryText}
+                  </Link>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </section>
+
+      <style>{`
+        @keyframes qs-fade-up {
+          from { opacity: 0; transform: translateY(14px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes qs-img-fade {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+      `}</style>
 
       {q.historia_texto && (
         <section className="bg-white py-20">

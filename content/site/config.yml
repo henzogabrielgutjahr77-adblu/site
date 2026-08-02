@@ -61,3 +61,11 @@ quem_somos:
   botao_secundario_texto: "Horários dos Cultos"
   botao_secundario_link: "/agenda"
   destaque_final: "Você e sua família são bem-vindos!"
+
+quem_somos_hero_imagem: "/uploads/quem-somos-hero.jpg"
+quem_somos_titulo: "Quem Somos"
+quem_somos_subtitulo: "Conheça nossa história, nossa missão e a forma como Deus tem conduzido nossa congregação ao longo dos anos."
+quem_somos_botao_primario_texto: "Fale Conosco"
+quem_somos_botao_primario_link: "/fale-conosco"
+quem_somos_botao_secundario_texto: "Horários dos Cultos"
+quem_somos_botao_secundario_link: "/agenda"
