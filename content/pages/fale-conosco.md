@@ -2,7 +2,7 @@
 title: Fale Conosco
 order: 7
 ---
-Precisa de oração ou quer receber uma visita? Envie seu pedido e retornaremos em breve.
+Precisa de oração ou quer receber uma visita? Envie seu pedido e retornaremos assim que possível!
 
 **WhatsApp do Pastor:** (47) 99280-6527
 
