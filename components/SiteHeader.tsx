@@ -1,5 +1,6 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { getSiteConfig, getPages } from "@/lib/content";
+import MobileMenu from "@/components/MobileMenu";
 
 export default function SiteHeader() {
   const config = getSiteConfig();
@@ -18,7 +19,7 @@ export default function SiteHeader() {
           {config.nome_curto}
         </span>
       </Link>
-      <nav>
+      <nav className="hidden md:flex">
         <ul className="flex list-none items-center gap-[1.2rem] sm:gap-[2.2rem]">
           {nav.map((item) => (
             <li key={item.href}>
@@ -32,6 +33,7 @@ export default function SiteHeader() {
           ))}
         </ul>
       </nav>
+      <MobileMenu items={nav} />
     </header>
   );
 }

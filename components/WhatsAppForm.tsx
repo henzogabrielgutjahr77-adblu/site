@@ -132,7 +132,7 @@ export default function WhatsAppForm({ whatsappUrl }: WhatsAppFormProps) {
 
       <button
         type="submit"
-        className="rounded bg-accent px-5 py-2.5 font-medium text-white transition-colors hover:bg-orange-600"
+        className="w-full rounded bg-accent px-5 py-2.5 font-medium text-white transition-colors hover:bg-orange-600 sm:w-auto"
       >
         Enviar pelo WhatsApp
       </button>

@@ -23,7 +23,7 @@ function splitTitle(title: string) {
 export default function Hero({ config }: { config: SiteConfig }) {
   return (
     <section
-      className="relative flex min-h-[calc(100svh-60px)] flex-col items-center justify-center overflow-hidden px-8 pb-16 pt-20 text-center text-white"
+      className="relative flex min-h-[calc(100svh-60px)] flex-col items-center justify-center overflow-hidden px-5 pb-16 pt-20 text-center text-white sm:px-8"
       style={{ background: HERO_BG }}
     >
       {config.hero_imagem && (
@@ -42,24 +42,29 @@ export default function Hero({ config }: { config: SiteConfig }) {
           </span>
         </div>
 
-        <h1 className="text-[clamp(46px,7.5vw,80px)] font-extrabold leading-[1.07] tracking-[-1.5px] text-white">
-          {splitTitle(config.titulo_hero)}
+        <h1 className="font-extrabold leading-[1.12] tracking-[-1.5px] text-white md:leading-[1.07]">
+          <span className="hidden text-[clamp(46px,7.5vw,80px)] md:inline">
+            {splitTitle(config.titulo_hero)}
+          </span>
+          <span className="block text-[clamp(40px,11vw,56px)] md:hidden">
+            {config.titulo_hero}
+          </span>
         </h1>
 
         <p className="mb-11 mt-0 text-[clamp(16px,2vw,19px)] italic text-white/50">
           {config.slogan}
         </p>
 
-        <div className="flex flex-wrap items-center justify-center gap-3.5">
+        <div className="flex w-full flex-wrap items-center justify-center gap-3.5">
           <Link
             href="/fale-conosco"
-            className="rounded-lg bg-[#e85d04] px-8 py-[15px] text-[15.5px] font-semibold text-white shadow-[0_4px_20px_rgba(232,93,4,0.35)] transition-all hover:-translate-y-px hover:bg-[#d05203] hover:shadow-[0_6px_28px_rgba(232,93,4,0.45)]"
+            className="flex w-full items-center justify-center rounded-lg bg-[#e85d04] px-8 py-[15px] text-[15.5px] font-semibold text-white shadow-[0_4px_20px_rgba(232,93,4,0.35)] transition-all hover:-translate-y-px hover:bg-[#d05203] hover:shadow-[0_6px_28px_rgba(232,93,4,0.45)] sm:w-auto"
           >
             {config.cta}
           </Link>
           <Link
             href="/agenda"
-            className="rounded-lg border-[1.5px] border-white/20 bg-white/[0.07] px-8 py-[15px] text-[15.5px] font-semibold text-white transition-all hover:-translate-y-px hover:border-white/40 hover:bg-white/[0.13]"
+            className="flex w-full items-center justify-center rounded-lg border-[1.5px] border-white/20 bg-white/[0.07] px-8 py-[15px] text-[15.5px] font-semibold text-white transition-all hover:-translate-y-px hover:border-white/40 hover:bg-white/[0.13] sm:w-auto"
           >
             Nossa Agenda
           </Link>
