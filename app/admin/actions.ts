@@ -48,7 +48,7 @@ const EXT_BY_MIME: Record<string, string> = {
   "image/webp": ".webp",
   "image/gif": ".gif",
 };
-const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
+const MAX_UPLOAD_BYTES = 9 * 1024 * 1024;
 
 export type ActionResult = { ok?: string; error?: string };
 
@@ -246,7 +246,7 @@ export async function uploadImageAction(
     return { error: "Tipo de imagem não permitido (use PNG, JPG, WEBP ou GIF)." };
   }
   if (file.size > MAX_UPLOAD_BYTES) {
-    return { error: "Imagem muito grande (máximo 5 MB)." };
+    return { error: "Imagem muito grande (máximo 9 MB)." };
   }
   const name = `${Date.now()}-${crypto.randomBytes(4).toString("hex")}${EXT_BY_MIME[file.type]}`;
   fs.mkdirSync(UPLOADS_DIR, { recursive: true });
