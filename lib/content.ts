@@ -26,6 +26,7 @@ export interface SiteConfig {
   endereco: string;
   email: string;
   horarios?: Horario[];
+  quem_somos?: QuemSomosContent;
 }
 
 export interface PageContent {
@@ -137,4 +138,35 @@ export function formatDate(iso: string): string {
     month: "long",
     year: "numeric",
   });
+}
+
+export interface QuemSomosContent {
+  titulo?: string;
+  subtitulo?: string;
+  imagem?: string;
+  historia_titulo?: string;
+  historia_texto?: string;
+  missao_titulo?: string;
+  missao_texto?: string;
+  visao_titulo?: string;
+  visao_texto?: string;
+  valores_titulo?: string;
+  valores?: string[];
+  botao_principal_texto?: string;
+  botao_principal_link?: string;
+  botao_secundario_texto?: string;
+  botao_secundario_link?: string;
+  destaque_final?: string;
+}
+
+export function imageExists(src?: string): boolean {
+  if (!src) return false;
+  if (/^https?:\/\//i.test(src)) return true;
+  const clean = src.replace(/^\/+/, "");
+  const candidates = [
+    path.join(CONTENT_DIR, "uploads", clean.replace(/^uploads\//, "")),
+    path.join(process.cwd(), "public", clean),
+    path.join(process.cwd(), clean),
+  ];
+  return candidates.some((p) => fs.existsSync(p));
 }

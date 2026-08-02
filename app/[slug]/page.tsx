@@ -6,7 +6,9 @@ import { getPage, getPages } from "@/lib/content";
 export const revalidate = 60;
 
 export async function generateStaticParams() {
-  return getPages().map((p) => ({ slug: p.slug }));
+  return getPages()
+    .filter((p) => p.slug !== "quem-somos")
+    .map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata({
