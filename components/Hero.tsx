@@ -71,7 +71,7 @@ export default function Hero({ config }: { config: SiteConfig }) {
       <a
         href="#sobre"
         aria-label="Rolar para o conteúdo"
-        className="absolute bottom-7 left-1/2 -translate-x-1/2 opacity-30 transition-opacity hover:opacity-70"
+        className="absolute bottom-7 left-1/2 opacity-30 transition-opacity hover:opacity-70"
         style={{ animation: "hero-bounce 2s infinite" }}
       >
         <ChevronDownIcon className="h-5 w-5 text-white" />
