@@ -185,12 +185,22 @@ export function HorariosForm({ horarios }: { horarios: Horario[] }) {
     setRows((prev) => prev.map((r, i) => (i === index ? { ...r, [key]: value } : r)));
   }
 
-  function addRow() { console.log("ADDBTN-FIRED", Date.now());
+  function addRow() {
     setRows((prev) => [...prev, { dia: "", horario: "", descricao: "" }]);
   }
 
   function removeRow(index: number) {
     setRows((prev) => (prev.length <= 1 ? prev : prev.filter((_, i) => i !== index)));
+  }
+
+  function moveRow(index: number, dir: -1 | 1) {
+    setRows((prev) => {
+      const next = [...prev];
+      const target = index + dir;
+      if (target < 0 || target >= next.length) return prev;
+      [next[index], next[target]] = [next[target], next[index]];
+      return next;
+    });
   }
 
   return (
@@ -242,14 +252,34 @@ export function HorariosForm({ horarios }: { horarios: Horario[] }) {
                 />
               </div>
             </div>
-            <button
-              type="button"
-              onClick={() => removeRow(index)}
-              disabled={rows.length <= 1}
-              className="mt-3 rounded-md border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50 disabled:opacity-40"
-            >
-              Remover este culto
-            </button>
+            <div className="mt-3 flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => moveRow(index, -1)}
+                disabled={index === 0}
+                aria-label="Mover para cima"
+                className="rounded-md border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-40"
+              >
+                ↑
+              </button>
+              <button
+                type="button"
+                onClick={() => moveRow(index, 1)}
+                disabled={index === rows.length - 1}
+                aria-label="Mover para baixo"
+                className="rounded-md border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-40"
+              >
+                ↓
+              </button>
+              <button
+                type="button"
+                onClick={() => removeRow(index)}
+                disabled={rows.length <= 1}
+                className="rounded-md border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50 disabled:opacity-40"
+              >
+                Remover este culto
+              </button>
+            </div>
           </div>
         ))}
       </div>
