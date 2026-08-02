@@ -70,7 +70,7 @@ export function getPage(slug: string): PageContent | null {
   };
 }
 
-export function getPages(): PageContent[] {
+export function getPages(): (PageContent & { slug: string })[] {
   const dir = path.join(CONTENT_DIR, "pages");
   const files = fs.readdirSync(dir).filter((f) => f.endsWith(".md"));
   return files
