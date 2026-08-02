@@ -25,6 +25,19 @@ export default function SiteFooter() {
             </p>
           )}
           {config.email && <p>E-mail: {config.email}</p>}
+          {config.instagram && (
+            <p>
+              Instagram:{" "}
+              <a
+                href={config.instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-accent transition-colors hover:text-orange-400 hover:underline"
+              >
+                @{config.instagram.replace(/\/+$/, "").split("/").pop()}
+              </a>
+            </p>
+          )}
         </div>
       </div>
       <div className="border-t border-white/10 py-4 text-center text-xs text-white/60">

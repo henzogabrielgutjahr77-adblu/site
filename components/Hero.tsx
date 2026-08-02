@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { SiteConfig } from "@/lib/content";
-import { ChevronDownIcon, CompassIcon } from "@/components/icons";
+import { ChevronDownIcon, CompassIcon, InstagramIcon } from "@/components/icons";
 
 const HERO_BG = [
   "radial-gradient(ellipse 60% 60% at 75% 45%, rgba(18,80,150,0.55) 0%, transparent 70%)",
@@ -55,6 +55,18 @@ export default function Hero({ config }: { config: SiteConfig }) {
           Nossa Agenda
         </Link>
       </div>
+
+      {config.instagram && (
+        <a
+          href={config.instagram}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Instagram"
+          className="mt-6 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white/75 transition-all hover:-translate-y-0.5 hover:bg-[#e85d04] hover:text-white"
+        >
+          <InstagramIcon className="h-5 w-5" />
+        </a>
+      )}
 
       <a
         href="#sobre"
