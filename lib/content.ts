@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
 import yaml from "js-yaml";
+import { resolveVisual, type VisualConfig } from "@/lib/visual";
 
 export const CONTENT_DIR = path.join(process.cwd(), "content");
 
@@ -25,6 +26,8 @@ export interface SiteConfig {
   whatsapp_url: string;
   endereco: string;
   email: string;
+  logo?: string;
+  copyright?: string;
   horarios?: Horario[];
   quem_somos?: QuemSomosContent;
   quem_somos_hero_imagem?: string;
@@ -37,6 +40,9 @@ export interface SiteConfig {
   nextcloud?: NextcloudSettings;
   /** Integração com o calendário do Nextcloud (CalDAV) para a página de agenda. */
   calendar?: CalendarSettings;
+  /** Configuração visual (paleta, tipografia, hero, espaçamentos, etc.).
+   *  Bruta (YAML). Use getVisualConfig() para obter normalizada. */
+  visual?: unknown;
 }
 
 export interface PageContent {
@@ -104,6 +110,11 @@ export function getSiteConfig(): SiteConfig {
   const file = path.join(CONTENT_DIR, "site", "config.yml");
   const raw = fs.readFileSync(file, "utf-8");
   return yaml.load(raw) as SiteConfig;
+}
+
+/** Configuração visual normalizada (defaults + CMS), pronta para uso em componentes. */
+export function getVisualConfig(): VisualConfig {
+  return resolveVisual(getSiteConfig().visual);
 }
 
 export function getPage(slug: string): PageContent | null {

@@ -16,6 +16,8 @@ import {
   syncNextcloudGallery,
 } from "@/lib/nextcloud";
 import { isCalendarEnabled, syncCalendar } from "@/lib/calendar";
+import { saveSections, resetSections, type Section } from "@/lib/sections";
+import { savePageVisual, resetPageVisual } from "@/lib/page-visual";
 import { attemptLogin, destroySession, isAuthed } from "@/lib/auth";
 
 const PAGES_DIR = path.join(CONTENT_DIR, "pages");
@@ -48,6 +50,8 @@ const CONFIG_FIELDS: { key: string; label: string }[] = [
   { key: "whatsapp_url", label: "WhatsApp (URL)" },
   { key: "endereco", label: "Endereço" },
   { key: "email", label: "Email" },
+  { key: "logo", label: "Logo (URL ou /uploads/…)" },
+  { key: "copyright", label: "Copyright do rodapé" },
 ];
 
 const ALLOWED_MIME = new Set(["image/png", "image/jpeg", "image/webp", "image/gif"]);
@@ -369,4 +373,95 @@ export async function uploadImageAction(
   fs.writeFileSync(path.join(UPLOADS_DIR, name), Buffer.from(await file.arrayBuffer()));
   syncToGit();
   return { ok: `/uploads/${name}` };
+}
+
+export async function saveVisualAction(
+  _prev: ActionResult,
+  formData: FormData,
+): Promise<ActionResult> {
+  await requireAuth();
+  const raw = String(formData.get("visual") ?? "");
+  let visual: unknown;
+  try {
+    visual = JSON.parse(raw);
+  } catch {
+    return { error: "JSON de aparência inválido. Nada foi alterado." };
+  }
+  if (!visual || typeof visual !== "object" || Array.isArray(visual)) {
+    return { error: "Aparência inválida." };
+  }
+  const current = yaml.load(fs.readFileSync(SITE_FILE, "utf-8")) as Record<string, unknown>;
+  current.visual = visual;
+  fs.writeFileSync(
+    SITE_FILE,
+    yaml.dump(current, { lineWidth: 120, noRefs: true }) + "\n",
+  );
+  syncToGit();
+  return { ok: "Aparência salva e aplicada ao site." };
+}
+
+export async function savePageVisualAction(
+  _prev: ActionResult,
+  formData: FormData,
+): Promise<ActionResult> {
+  await requireAuth();
+  const slug = String(formData.get("slug") ?? "");
+  if (!SLUG_RE.test(slug)) return { error: "Slug inválido." };
+  const raw = String(formData.get("visual") ?? "");
+  let visual: unknown;
+  try {
+    visual = JSON.parse(raw);
+  } catch {
+    return { error: "JSON de aparência inválido. Nada foi alterado." };
+  }
+  if (!visual || typeof visual !== "object" || Array.isArray(visual)) {
+    return { error: "Aparência inválida." };
+  }
+  savePageVisual(slug, visual);
+  syncToGit();
+  return { ok: "Aparência da página salva e aplicada." };
+}
+
+export async function resetPageVisualAction(
+  _prev: ActionResult,
+  formData: FormData,
+): Promise<ActionResult> {
+  await requireAuth();
+  const slug = String(formData.get("slug") ?? "");
+  if (!SLUG_RE.test(slug)) return { error: "Slug inválido." };
+  resetPageVisual(slug);
+  syncToGit();
+  return { ok: "Aparência da página restaurada para o padrão do site." };
+}
+
+export async function saveSectionsAction(
+  _prev: ActionResult,
+  formData: FormData,
+): Promise<ActionResult> {
+  await requireAuth();
+  const slug = String(formData.get("slug") ?? "");
+  if (!SLUG_RE.test(slug)) return { error: "Slug inválido." };
+  const raw = String(formData.get("sections") ?? "");
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    return { error: "Dados de seções inválidos. Nada foi alterado." };
+  }
+  if (!Array.isArray(parsed)) return { error: "Seções inválidas." };
+  saveSections(slug, parsed as Section[]);
+  syncToGit();
+  return { ok: "Layout salvo e aplicado ao site." };
+}
+
+export async function resetSectionsAction(
+  _prev: ActionResult,
+  formData: FormData,
+): Promise<ActionResult> {
+  await requireAuth();
+  const slug = String(formData.get("slug") ?? "");
+  if (!SLUG_RE.test(slug)) return { error: "Slug inválido." };
+  resetSections(slug);
+  syncToGit();
+  return { ok: "Layout restaurado para o padrão." };
 }

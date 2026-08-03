@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./fonts.css";
 @plugin "@tailwindcss/typography";
 
 @theme {
@@ -6,10 +7,18 @@
   --color-navy-800: #122536;
   --color-navy-700: #17354f;
   --color-accent: #ff6900;
+  --color-action: #e85d04;
+  --color-ink: #0f172a;
+  --color-muted-ink: #64748b;
+  --color-card-bg: #ffffff;
+  --color-surface: #f8fafc;
+  --color-border-soft: #e2e8f0;
 }
 
 body {
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-family: var(--v-font-body, var(--font-geist-sans)), system-ui, sans-serif;
+  font-size: var(--v-body-size, 16px);
+  line-height: var(--v-body-lh, 1.65);
 }
 
 html {
@@ -30,4 +39,184 @@ body {
 @keyframes gallery-fade-in {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* ------------------------------------------------------------------ */
+/* Tokens semânticos (valores injetados pelo VisualProvider via CMS)   */
+/* ------------------------------------------------------------------ */
+
+.vi-heading {
+  font-family: var(--v-font-heading);
+  font-weight: var(--v-heading-weight);
+  line-height: var(--v-heading-lh);
+  letter-spacing: var(--v-heading-ls);
+}
+
+/* Tamanhos derivados do token de título do CMS */
+.vi-title-display {
+  font-size: var(--v-heading-size);
+}
+
+.vi-title-section {
+  font-size: calc(var(--v-heading-size) * 0.62);
+}
+
+.vi-subtitle {
+  font-family: var(--v-font-subtitle);
+  font-size: var(--v-subtitle-size);
+  font-weight: var(--v-subtitle-weight);
+  line-height: var(--v-subtitle-lh);
+  letter-spacing: var(--v-subtitle-ls);
+}
+
+.vi-body {
+  font-family: var(--v-font-body);
+  font-size: var(--v-body-size);
+  font-weight: var(--v-body-weight);
+  line-height: var(--v-body-lh);
+  letter-spacing: var(--v-body-ls);
+}
+
+.vi-button {
+  font-family: var(--v-font-button);
+  font-size: var(--v-button-size);
+  font-weight: var(--v-button-weight);
+  line-height: var(--v-button-lh);
+  letter-spacing: var(--v-button-ls);
+}
+
+/* ------------------------------------------------------------------ */
+/* Hero (estrutura; valores vêm de --hero-* definidos por instância)   */
+/* ------------------------------------------------------------------ */
+
+.vi-hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: var(--hero-min-height);
+  height: var(--hero-height);
+  margin-bottom: var(--hero-margin-bottom);
+  justify-content: var(--hero-justify);
+}
+
+.vi-hero .vi-body {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: var(--hero-max-width);
+  margin-inline: auto;
+  padding-top: var(--hero-padding-top);
+  padding-bottom: var(--hero-padding-bottom);
+}
+
+.vi-hero .vi-col {
+  width: 100%;
+  max-width: var(--hero-column-width);
+  display: flex;
+  flex-direction: column;
+  gap: var(--hero-gap);
+  text-align: var(--hero-text-align);
+  margin-left: var(--hero-margin-left);
+  margin-right: var(--hero-margin-right);
+}
+.vi-home .vi-col { align-items: center; }
+
+.vi-hero .vi-photo {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: var(--hero-photo-position);
+  background-image: var(--hero-photo-image);
+  transform: var(--hero-photo-transform);
+  filter: var(--hero-photo-filter);
+  opacity: var(--hero-photo-opacity);
+}
+
+.vi-hero .vi-gradient {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: var(--hero-gradient);
+}
+
+.vi-hero .vi-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: var(--hero-overlay);
+  opacity: var(--hero-overlay-opacity);
+}
+
+.vi-hero .vi-fade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 3;
+  height: var(--hero-fade-height);
+  background: var(--hero-fade-gradient);
+  pointer-events: none;
+}
+
+/* imagens flutuantes (valores por imagem são gerados pelo CMS) */
+.fi-img {
+  position: absolute;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.fi-ov {
+  position: absolute;
+  inset: 0;
+  background: var(--fi-overlay, transparent);
+  opacity: var(--fi-overlay-opacity, 0);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.vi-hero-anim {
+  animation: var(--hero-anim-name) var(--hero-anim-duration) var(--hero-anim-easing) var(--hero-anim-delay) both;
+}
+
+.vi-hero .vi-photo,
+.vi-hero .vi-gradient,
+.vi-hero .vi-overlay {
+  animation: none;
+}
+
+/* ------------------------------------------------------------------ */
+/* Animações da hero (nome da keyframe escolhido pelo config)          */
+/* ------------------------------------------------------------------ */
+
+@keyframes vi-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes vi-fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes vi-zoom {
+  from { opacity: 0; transform: scale(1.06); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes vi-slide {
+  from { opacity: 0; transform: translateX(-24px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes vi-blur {
+  from { opacity: 0; filter: blur(6px); }
+  to { opacity: 1; filter: none; }
+}
+
+@keyframes hero-bounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(5px); }
 }

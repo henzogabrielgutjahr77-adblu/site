@@ -41,8 +41,8 @@ export default function SiteFooter() {
         </div>
       </div>
       <div className="border-t border-white/10 py-4 text-center text-xs text-white/60">
-        {config.titulo_hero} © {new Date().getFullYear()} - Todos os direitos
-        reservados.
+        {config.copyright ||
+          `${config.titulo_hero} © ${new Date().getFullYear()} - Todos os direitos reservados.`}
       </div>
     </footer>
   );

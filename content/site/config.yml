@@ -59,7 +59,7 @@ quem_somos:
   botao_secundario_texto: Horários dos Cultos
   botao_secundario_link: /agenda
   destaque_final: Você e sua família são bem-vindos!
-quem_somos_hero_imagem: /uploads/quem-somos-hero.jpg
+quem_somos_hero_imagem: /uploads/1785640725302-c4a288e1.jpg
 quem_somos_titulo: Quem Somos
 quem_somos_subtitulo: Conheça nossa história, nossa missão e a forma como Deus tem conduzido nossa congregação ao longo dos anos.
 quem_somos_botao_primario_texto: Fale Conosco
@@ -80,4 +80,238 @@ calendar:
   calendar_id: personal
   username: agenda
   sync_interval_seconds: 15
+visual:
+  version: 1
+  palette:
+    primary: '#0e2540'
+    primaryDark: '#08111f'
+    secondary: '#17354f'
+    accent: '#ff6900'
+    action: '#e85d04'
+    background: '#ffffff'
+    surface: '#f8fafc'
+    text: '#0f172a'
+    muted: '#64748b'
+    border: '#e2e8f0'
+  typography:
+    heading:
+      family:
+        desktop: Figtree
+      size:
+        desktop: 48
+        tablet: 40
+        mobile: 32
+      weight:
+        desktop: 800
+      lineHeight:
+        desktop: 1.1
+      letterSpacing:
+        desktop: -0.03
+    subtitle:
+      family:
+        desktop: Inter
+      size:
+        desktop: 18
+        tablet: 16
+        mobile: 15
+      weight:
+        desktop: 400
+      lineHeight:
+        desktop: 1.5
+      letterSpacing:
+        desktop: 0
+    body:
+      family:
+        desktop: Inter
+      size:
+        desktop: 16
+        tablet: 15
+        mobile: 15
+      weight:
+        desktop: 400
+      lineHeight:
+        desktop: 1.65
+      letterSpacing:
+        desktop: 0
+    button:
+      family:
+        desktop: Inter
+      size:
+        desktop: 15.5
+        tablet: 15
+        mobile: 14
+      weight:
+        desktop: 600
+      lineHeight:
+        desktop: 1.2
+      letterSpacing:
+        desktop: 0
+  spacing:
+    section:
+      desktop: 80
+      tablet: 64
+      mobile: 48
+    heading:
+      desktop: 32
+      tablet: 28
+      mobile: 24
+    card:
+      desktop: 24
+      tablet: 20
+      mobile: 16
+    text:
+      desktop: 16
+      tablet: 14
+      mobile: 12
+  radius:
+    general: 12
+    card: 12
+    button: 23
+    image: 8
+    section: 0
+    input: 8
+  shadow:
+    color: '#000000'
+    intensity: 0.1
+    offsetX: 0
+    offsetY: 4
+    blur: 16
+  motion:
+    enabled: true
+  hero:
+    enabled: true
+    height:
+      desktop: 0
+    minHeight:
+      desktop: 0
+    maxWidth:
+      desktop: 1920
+    horizontalAlign:
+      desktop: center
+    verticalAlign:
+      desktop: center
+    alignText:
+      desktop: left
+    paddingTop:
+      desktop: 64
+      tablet: 56
+      mobile: 48
+    paddingBottom:
+      desktop: 96
+      tablet: 72
+      mobile: 56
+    marginBottom:
+      desktop: 0
+    blockGap:
+      desktop: 24
+      tablet: 20
+      mobile: 16
+    columnWidth:
+      desktop: 1080
+    overlayColor: '#0e1a26'
+    overlayOpacity: 0.8
+    photo:
+      desktop:
+        image: /uploads/1785640725302-c4a288e1.jpg
+        positionX: 50
+        positionY: 50
+        scale: 1
+        zoom: 1
+        opacity: 1
+        blur: 0
+        brightness: 1
+        contrast: 1
+        saturation: 1
+        rotation: 0
+    gradient:
+      desktop:
+        start: '#08111f'
+        middle: '#0e2540'
+        end: '#0b1e34'
+        opacity: 0.6
+        intensity: 1
+        direction: 160
+        stopStart: 0
+        stopMiddle: 45
+        stopEnd: 100
+    transition:
+      height: 0
+      intensity: 0
+      gradientEnd: 100
+      nextSectionOffset: 0
+    floatingImages: []
+    animation:
+      enabled: true
+      type: fade
+      duration: 700
+      delay: 0
+      easing: ease-out
+  homeHero:
+    enabled: true
+    height:
+      desktop: 0
+    minHeight:
+      desktop: 0
+    maxWidth:
+      desktop: 1280
+    horizontalAlign:
+      desktop: center
+    verticalAlign:
+      desktop: center
+    alignText:
+      desktop: center
+    paddingTop:
+      desktop: 88
+      tablet: 72
+      mobile: 56
+    paddingBottom:
+      desktop: 88
+      tablet: 72
+      mobile: 56
+    marginBottom:
+      desktop: 0
+    blockGap:
+      desktop: 28
+      tablet: 24
+      mobile: 20
+    columnWidth:
+      desktop: 0
+    overlayColor: '#0e1a26'
+    overlayOpacity: 0.8
+    photo:
+      desktop:
+        image: /uploads/1785640725302-c4a288e1.jpg
+        positionX: 50
+        positionY: 50
+        scale: 1
+        zoom: 1
+        opacity: 1
+        blur: 0
+        brightness: 0.9
+        contrast: 1.05
+        saturation: 1
+        rotation: 0
+    gradient:
+      desktop:
+        start: '#08111f'
+        middle: '#0e2540'
+        end: '#0b1e34'
+        opacity: 0.65
+        intensity: 1
+        direction: 160
+        stopStart: 0
+        stopMiddle: 0
+        stopEnd: 0
+    transition:
+      height: 0
+      intensity: 0
+      gradientEnd: 100
+      nextSectionOffset: 0
+    floatingImages: []
+    animation:
+      enabled: true
+      type: fade
+      duration: 700
+      delay: 0
+      easing: ease-out
 

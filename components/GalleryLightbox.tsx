@@ -91,7 +91,7 @@ export default function GalleryLightbox({
         onTouchEnd={handleTouchEnd}
       >
         <Image
-          src={item.src}
+          src={item.srcFull ?? item.src}
           alt={item.alt}
           fill
           sizes="100vw"

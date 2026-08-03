@@ -3,6 +3,8 @@ import { Geist } from "next/font/google";
 import "./globals.css";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
+import VisualProvider from "@/components/visual/VisualProvider";
+import PreviewBreakpoint from "@/components/visual/PreviewBreakpoint";
 import { getSiteConfig } from "@/lib/content";
 
 const geistSans = Geist({
@@ -29,6 +31,8 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className={`${geistSans.variable} antialiased`}>
       <body className="flex min-h-full flex-col bg-white font-sans text-slate-900">
+        <VisualProvider />
+        <PreviewBreakpoint />
         <SiteHeader />
         <main className="flex-1">{children}</main>
         <SiteFooter />

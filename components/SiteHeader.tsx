@@ -11,7 +11,7 @@ export default function SiteHeader() {
     <header className="sticky top-0 z-[100] flex h-[60px] items-center justify-between border-b border-white/[0.06] bg-[#08111f] px-5 text-white sm:px-12">
       <Link href="/" className="flex items-center gap-2.5">
         <img
-          src="/logo.png"
+          src={config.logo || "/logo.png"}
           alt={config.nome_curto}
           className="h-10 w-auto rounded object-contain"
         />

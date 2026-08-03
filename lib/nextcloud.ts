@@ -1,37 +1,45 @@
 import fs from "fs";
 import path from "path";
-import { XMLParser } from "fast-xml-parser";
 import { CONTENT_DIR } from "@/lib/content";
 import type { NextcloudSettings } from "@/lib/content";
+import { downloadRemoteFile, listRemoteImages, sanitizeFileName } from "@/lib/nextcloud-webdav";
+import { processGallery } from "@/lib/gallery-processor";
+import { NextcloudError } from "@/lib/nextcloud-webdav";
+
+// Re-exports mantidos para compatibilidade com páginas e painel admin.
+export { IMAGE_EXTENSIONS, NextcloudError, getNextcloudPassword } from "@/lib/nextcloud-webdav";
+export type { NextcloudRemoteImage } from "@/lib/nextcloud-webdav";
 
 /**
- * Integração com o Nextcloud via WebDAV usada como fonte oficial das fotos da
- * galeria do site.
+ * Sincronização da galeria do site com o Nextcloud (WebDAV).
  *
- * Estratégia de sincronização (evita consultar o Nextcloud a cada requisição):
- *  1. As imagens são baixadas para um cache local em
- *     `content/uploads/nextcloud/<pasta>/` (gitignored).
- *  2. Um manifesto JSON (`content/cache/nextcloud-gallery.json`) registra quais
- *     arquivos existem e de onde vieram.
- *  3. A página da galeria lê o manifesto; se ele estiver "velho" demais
- *     (mais que `sync_interval_seconds`), uma sincronização é disparada sob um
- *     lock para evitar consultas concorrentes (thundering herd).
+ * Estratégia:
+ *  1. O processador (`processGallery`) garante que as pastas `site/` e
+ *     `thumbs/` do Nextcloud estão sempre em dia com a pasta `originais/`.
+ *  2. A galeria lê **somente** as pastas `site/` e `thumbs/`:
+ *       - `thumbs/` monta a grade da galeria;
+ *       - `site/` é usada ao abrir a foto.
+ *     As originais nunca são baixadas nem exibidas pelo site.
+ *  3. As versões de exibição são baixadas para um cache local em
+ *     `content/uploads/nextcloud/<pasta>/thumbs|site/` (gitignored) e um
+ *     manifesto JSON (`content/cache/nextcloud-gallery.json`) registra o estado.
+ *  4. A página lê o manifesto; se ele estiver "velho" demais (mais que
+ *     `sync_interval_seconds`), uma sincronização é disparada sob um lock para
+ *     evitar consultas concorrentes (thundering herd).
  *
- * Toda a configuração (URL do WebDAV, pasta, usuário, intervalo, paginação)
- * fica no bloco `nextcloud` de `content/site/config.yml`. A senha/app password
- * é lida da env `NEXTCLOUD_PASSWORD` ou do arquivo gitignored
- * `content/site/nextcloud.secret`, nunca do arquivo versionado.
+ * A configuração (URL do WebDAV, pasta, usuário, intervalo, paginação) fica no
+ * bloco `nextcloud` de `content/site/config.yml`. A senha é lida da env
+ * `NEXTCLOUD_PASSWORD` ou do arquivo gitignored `content/site/nextcloud.secret`.
  */
-
-/** Extensões de imagem suportadas na galeria (em minúsculas). */
-export const IMAGE_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp", ".avif"]);
 
 /** Item exibido na galeria, independente da fonte (Nextcloud ou manual). */
 export interface GalleryDisplayItem {
   /** Identificador estável do item. */
   id: string;
-  /** URL servida pelo próprio site (ex.: /uploads/nextcloud/...). */
+  /** URL da miniatura para a grade (pasta thumbs/ do Nextcloud). */
   src: string;
+  /** URL da versão otimizada para abrir a foto (pasta site/ do Nextcloud). */
+  srcFull?: string;
   /** Texto alternativo para acessibilidade. */
   alt: string;
   /** Legenda opcional. */
@@ -40,22 +48,13 @@ export interface GalleryDisplayItem {
   source: "nextcloud" | "manual";
 }
 
-/** Imagem listada remotamente no WebDAV do Nextcloud. */
-interface NextcloudRemoteImage {
-  /** Nome do arquivo no Nextcloud. */
-  name: string;
-  /** Caminho absoluto (URL-encoded) dentro do WebDAV. */
-  href: string;
-  /** Tamanho em bytes. */
-  size: number;
-  /** Data de modificação no Nextcloud (ISO 8601). */
-  mtime: string;
-}
-
 /** Item persistido no manifesto de cache local. */
 interface ManifestItem {
   name: string;
+  /** URL da miniatura (grade). */
   src: string;
+  /** URL da versão otimizada (tela cheia). */
+  srcFull: string;
   size: number;
   mtime: string;
 }
@@ -77,41 +76,13 @@ export interface NextcloudGalleryResult {
   error?: string;
 }
 
-/** Erro da integração, com a flag `offline` para tratamento amigável. */
-export class NextcloudError extends Error {
-  readonly offline: boolean;
-
-  constructor(message: string, offline: boolean) {
-    super(message);
-    this.name = "NextcloudError";
-    this.offline = offline;
-  }
-}
-
-const SECRET_FILE = path.join(CONTENT_DIR, "site", "nextcloud.secret");
 const CACHE_DIR = path.join(CONTENT_DIR, "cache");
 const MANIFEST_FILE = path.join(CACHE_DIR, "nextcloud-gallery.json");
 const LOCK_FILE = path.join(CACHE_DIR, "nextcloud-sync.lock");
 const UPLOADS_DIR = path.join(CONTENT_DIR, "uploads");
 const LOCAL_ROOT = path.join(UPLOADS_DIR, "nextcloud");
-/** Tempo máximo de espera em uma chamada ao WebDAV. */
-const REQUEST_TIMEOUT_MS = 10_000;
-
-const xmlParser = new XMLParser({
-  ignoreAttributes: false,
-  removeNSPrefix: true,
-  attributeNamePrefix: "",
-});
-
-/** Lê a senha/app password do WebDAV (env primeiro, depois arquivo gitignored). */
-export function getNextcloudPassword(): string {
-  if (process.env.NEXTCLOUD_PASSWORD) return process.env.NEXTCLOUD_PASSWORD;
-  try {
-    return fs.readFileSync(SECRET_FILE, "utf-8").trim();
-  } catch {
-    return "";
-  }
-}
+/** Tempo máximo de uma sincronização antes de outra requisição assumir. */
+const SYNC_LOCK_MAX_MS = 5 * 60_000;
 
 /** Indica se a integração está ativa (config presente e habilitada). */
 export function isNextcloudEnabled(cfg?: NextcloudSettings): cfg is NextcloudSettings {
@@ -133,129 +104,6 @@ function localFolder(cfg: NextcloudSettings): string {
   return path.join(LOCAL_ROOT, localFolderName(cfg));
 }
 
-/** Monta a URL completa da pasta (com encode por segmento e barra final). */
-function folderUrl(cfg: NextcloudSettings): string {
-  const base = cfg.webdav_url.replace(/\/+$/, "");
-  const segments = cfg.folder
-    .split("/")
-    .map((s) => s.trim())
-    .filter(Boolean)
-    .map(encodeURIComponent)
-    .join("/");
-  return `${base}/${segments}/`;
-}
-
-/** Cabeçalhos de autenticação Basic do WebDAV. */
-function authHeaders(cfg: NextcloudSettings): Record<string, string> {
-  const token = Buffer.from(`${cfg.username}:${getNextcloudPassword()}`).toString("base64");
-  return { Authorization: `Basic ${token}` };
-}
-
-/** Executa uma chamada WebDAV com timeout, classificando erros de rede como offline. */
-async function webdavRequest(
-  cfg: NextcloudSettings,
-  method: string,
-  url: string,
-  extraHeaders: Record<string, string> = {},
-): Promise<Response> {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
-  try {
-    return await fetch(url, {
-      method,
-      headers: { ...authHeaders(cfg), ...extraHeaders },
-      signal: controller.signal,
-      cache: "no-store",
-    });
-  } catch (cause) {
-    throw new NextcloudError(
-      "Não foi possível conectar ao Nextcloud (servidor offline ou endereço inválido).",
-      true,
-    );
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
-/** Normaliza um valor do parser XML para array (evita checagens de singular/plural). */
-function toArray<T>(value: T | T[] | undefined): T[] {
-  if (Array.isArray(value)) return value;
-  return value === undefined ? [] : [value];
-}
-
-/** Converte a string de data do WebDAV (RFC 1123) em ISO 8601. */
-function toIso(raw: string): string {
-  const date = new Date(raw);
-  return isNaN(date.getTime()) ? new Date(0).toISOString() : date.toISOString();
-}
-
-/** Lista as imagens da pasta do Nextcloud via PROPFIND (Depth: 1). */
-async function listRemoteImages(cfg: NextcloudSettings): Promise<NextcloudRemoteImage[]> {
-  const res = await webdavRequest(cfg, "PROPFIND", folderUrl(cfg), { Depth: "1" });
-  if (res.status === 401 || res.status === 403) {
-    throw new NextcloudError("Credenciais do WebDAV inválidas. Verifique usuário e senha.", false);
-  }
-  if (res.status === 404) {
-    throw new NextcloudError("Pasta configurada não encontrada no Nextcloud.", false);
-  }
-  if (!res.ok) {
-    throw new NextcloudError(`Falha ao listar a pasta do Nextcloud (HTTP ${res.status}).`, true);
-  }
-
-  const parsed = xmlParser.parse(await res.text());
-  const items: NextcloudRemoteImage[] = [];
-
-  for (const response of toArray(parsed?.multistatus?.response)) {
-    const href = String(response?.href ?? "");
-    if (!href || href.endsWith("/")) continue;
-
-    const name = decodeURIComponent(href.split("/").filter(Boolean).pop() ?? "");
-    const ext = path.extname(name).toLowerCase();
-    if (!IMAGE_EXTENSIONS.has(ext)) continue;
-
-    const propstats = toArray(response?.propstat);
-    const okStat = propstats.find((p) => String(p?.status ?? "").includes("200")) ?? propstats[0];
-    const prop = okStat?.prop ?? {};
-
-    const size = Number(prop.getcontentlength ?? 0) || 0;
-    const mtime = toIso(String(prop.getlastmodified ?? ""));
-
-    items.push({ name, href, size, mtime });
-  }
-
-  // Mais recentes primeiro (data de modificação no Nextcloud).
-  return items.sort((a, b) => (a.mtime < b.mtime ? 1 : -1));
-}
-
-/** Baixa um arquivo do WebDAV para o cache local. */
-async function downloadRemote(
-  cfg: NextcloudSettings,
-  href: string,
-  localPath: string,
-): Promise<void> {
-  const url = new URL(href, cfg.webdav_url).toString();
-  const res = await webdavRequest(cfg, "GET", url);
-  if (!res.ok) {
-    throw new NextcloudError(`Falha ao baixar imagem do Nextcloud (HTTP ${res.status}).`, true);
-  }
-  fs.mkdirSync(path.dirname(localPath), { recursive: true });
-  fs.writeFileSync(localPath, Buffer.from(await res.arrayBuffer()));
-}
-
-/** Gera um nome de arquivo local seguro a partir do nome remoto. */
-function sanitizeFileName(name: string): string {
-  const ext = path.extname(name);
-  const base = path.basename(name, ext);
-  const safeBase =
-    base
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^A-Za-z0-9._-]+/g, "-")
-      .replace(/^-+|-+$/g, "")
-      .slice(0, 80) || "imagem";
-  return `${safeBase}${ext.toLowerCase()}`;
-}
-
 /** Lê o manifesto do cache (null se ainda não existir). */
 function readManifest(): GalleryManifest | null {
   try {
@@ -273,55 +121,94 @@ function manifestToResult(manifest: GalleryManifest, offline: boolean): Nextclou
     .map((item) => ({
       id: `nextcloud-${item.name}`,
       src: item.src,
+      srcFull: item.srcFull,
       alt: item.name,
       caption: item.name,
       source: "nextcloud" as const,
     }))
     .filter((item) => {
-      // Garante que só exibimos imagens que realmente existem no cache local.
+      // Garante que só exibimos miniaturas que realmente existem no cache local.
       const rel = item.src.replace(/^\/uploads\//, "");
       return fs.existsSync(path.join(UPLOADS_DIR, rel));
     });
   return { items, syncedAt: manifest.syncedAt, offline };
 }
 
+/** Baixa um arquivo do WebDAV para o cache local. */
+async function downloadTo(cfg: NextcloudSettings, href: string, localPath: string): Promise<void> {
+  const data = await downloadRemoteFile(cfg, href);
+  fs.mkdirSync(path.dirname(localPath), { recursive: true });
+  fs.writeFileSync(localPath, data);
+}
+
 /**
- * Executa a sincronização completa: lista o Nextcloud, baixa imagens novas,
- * remove as que saíram da pasta e atualiza o manifesto.
+ * Executa a sincronização completa:
+ *  1. processa novas originais → site/ e thumbs/ no Nextcloud;
+ *  2. baixa as versões de exibição novas (thumbs/ para a grade e site/ para a
+ *     tela cheia) e remove as que saíram da pasta;
+ *  3. atualiza o manifesto.
  */
 export async function syncNextcloudGallery(
   cfg: NextcloudSettings,
 ): Promise<NextcloudGalleryResult> {
-  const remote = await listRemoteImages(cfg);
-  const dir = localFolder(cfg);
-  const keepLocal = new Set<string>();
+  // 1. Converte originais novas/alteradas em site/ e thumbs/ (ignora já processadas).
+  await processGallery(cfg);
 
-  const items: (ManifestItem & { localPath: string })[] = remote.map((image) => {
-    const file = sanitizeFileName(image.name);
-    let localName = file;
-    const rel = path.join(localFolderName(cfg), localName);
-    const localPath = path.join(LOCAL_ROOT, rel);
-    keepLocal.add(localPath);
-    const src = `/uploads/nextcloud/${rel.split(path.sep).join("/")}`;
-    return { name: image.name, src, size: image.size, mtime: image.mtime, localPath };
+  // 2. Lista as versões de exibição (thumbs/ + site/), nunca as originais.
+  const [remoteThumbs, remoteSites] = await Promise.all([
+    listRemoteImages(cfg, "thumbs", true),
+    listRemoteImages(cfg, "site", true),
+  ]);
+  const siteByName = new Map(remoteSites.map((s) => [s.name, s]));
+
+  const folderName = localFolderName(cfg);
+  const keepThumb = new Set<string>();
+  const keepSite = new Set<string>();
+
+  const items = remoteThumbs.map((thumb) => {
+    const file = sanitizeFileName(thumb.name);
+    const thumbRel = path.join(folderName, "thumbs", file);
+    const siteRel = path.join(folderName, "site", file);
+    const thumbLocal = path.join(LOCAL_ROOT, thumbRel);
+    const siteLocal = path.join(LOCAL_ROOT, siteRel);
+    keepThumb.add(thumbLocal);
+    keepSite.add(siteLocal);
+    const siteRemote = siteByName.get(thumb.name);
+    const thumbSrc = `/uploads/nextcloud/${thumbRel.split(path.sep).join("/")}`;
+    const siteSrc = siteRemote
+      ? `/uploads/nextcloud/${siteRel.split(path.sep).join("/")}`
+      : thumbSrc;
+    return {
+      name: thumb.name,
+      src: thumbSrc,
+      srcFull: siteSrc,
+      size: thumb.size,
+      mtime: thumb.mtime,
+      thumbLocal,
+      siteLocal,
+      thumbHref: thumb.href,
+      siteHref: siteRemote?.href ?? null,
+    };
   });
 
-  // Remove arquivos locais que não estão mais na pasta do Nextcloud.
-  if (fs.existsSync(dir)) {
-    for (const file of fs.readdirSync(dir)) {
-      const localPath = path.join(dir, file);
-      if (fs.statSync(localPath).isFile() && !keepLocal.has(localPath)) {
-        fs.rmSync(localPath, { force: true });
+  // Remove arquivos locais órfãos das pastas thumbs/ e site/.
+  for (const base of [path.join(localFolder(cfg), "thumbs"), path.join(localFolder(cfg), "site")]) {
+    if (!fs.existsSync(base)) continue;
+    for (const file of fs.readdirSync(base)) {
+      const p = path.join(base, file);
+      if (fs.statSync(p).isFile() && !keepThumb.has(p) && !keepSite.has(p)) {
+        fs.rmSync(p, { force: true });
       }
     }
   }
 
-  // Baixa imagens novas (as já presentes são mantidas).
+  // Baixa as versões novas (as já presentes são mantidas).
   for (const item of items) {
-    const remoteImage = remote.find((r) => r.name === item.name);
-    if (!remoteImage) continue;
-    if (!fs.existsSync(item.localPath)) {
-      await downloadRemote(cfg, remoteImage.href, item.localPath);
+    if (!fs.existsSync(item.thumbLocal) && item.thumbHref) {
+      await downloadTo(cfg, item.thumbHref, item.thumbLocal);
+    }
+    if (item.srcFull !== item.src && !fs.existsSync(item.siteLocal) && item.siteHref) {
+      await downloadTo(cfg, item.siteHref, item.siteLocal);
     }
   }
 
@@ -329,7 +216,13 @@ export async function syncNextcloudGallery(
     version: 1,
     syncedAt: new Date().toISOString(),
     folder: cfg.folder,
-    items: items.map(({ name, src, size, mtime }) => ({ name, src, size, mtime })),
+    items: items.map(({ name, src, srcFull, size, mtime }) => ({
+      name,
+      src,
+      srcFull,
+      size,
+      mtime,
+    })),
   };
   fs.mkdirSync(CACHE_DIR, { recursive: true });
   fs.writeFileSync(MANIFEST_FILE, JSON.stringify(manifest, null, 2));
@@ -383,7 +276,7 @@ export async function getNextcloudGallery(
     return manifestToResult(cached, false);
   }
 
-  if (!acquireLock(staleMs)) {
+  if (!acquireLock(Math.max(staleMs, SYNC_LOCK_MAX_MS))) {
     // Outra requisição já está sincronizando: usa o cache atual, se houver.
     return cached
       ? manifestToResult(cached, false)

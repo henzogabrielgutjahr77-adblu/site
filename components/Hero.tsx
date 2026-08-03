@@ -1,13 +1,8 @@
+import type { CSSProperties } from "react";
 import Link from "next/link";
-import type { SiteConfig } from "@/lib/content";
+import { getSiteConfig, getVisualConfig } from "@/lib/content";
+import HeroVisual from "@/components/visual/HeroVisual";
 import { ChevronDownIcon, CompassIcon, InstagramIcon } from "@/components/icons";
-
-const HERO_BG = [
-  "radial-gradient(ellipse 60% 60% at 75% 45%, rgba(18,80,150,0.55) 0%, transparent 70%)",
-  "radial-gradient(ellipse 50% 50% at 25% 70%, rgba(8,55,80,0.45) 0%, transparent 65%)",
-  "radial-gradient(ellipse 40% 40% at 50% 20%, rgba(10,50,100,0.3) 0%, transparent 60%)",
-  "linear-gradient(160deg, #08111f 0%, #0e2540 45%, #0b1e34 100%)",
-].join(", ");
 
 function splitTitle(title: string) {
   const parts = title.trim().split(" ");
@@ -20,79 +15,74 @@ function splitTitle(title: string) {
   );
 }
 
-export default function Hero({ config }: { config: SiteConfig }) {
+const BTN_PRIMARY =
+  "vi-button flex w-full items-center justify-center rounded-(--v-radius-button) bg-(--color-action) px-8 py-[15px] text-white transition-all hover:-translate-y-px hover:brightness-90 sm:w-auto";
+const BTN_SECONDARY =
+  "vi-button flex w-full items-center justify-center rounded-(--v-radius-button) border-[1.5px] border-white/20 bg-white/[0.07] px-8 py-[15px] text-white transition-all hover:-translate-y-px hover:border-white/40 hover:bg-white/[0.13] sm:w-auto";
+
+function delay(ms: number): CSSProperties {
+  return { animationDelay: `${ms}ms` };
+}
+
+export default function Hero() {
+  const config = getSiteConfig();
+  const visual = getVisualConfig();
+  const hero = visual.homeHero;
+
   return (
-    <section
-      className="relative flex min-h-[calc(100svh-60px)] flex-col items-center justify-center overflow-hidden px-5 pb-16 pt-20 text-center text-white sm:px-8"
-      style={{ background: HERO_BG }}
+    <HeroVisual
+      variant="home"
+      hero={hero}
+      bottom={
+        <a
+          href="#horarios"
+          aria-label="Rolar para o conteúdo"
+          className="absolute bottom-6 left-1/2 z-20 opacity-30 transition-opacity hover:opacity-70"
+          style={{ animation: "hero-bounce 2s infinite" }}
+        >
+          <ChevronDownIcon className="h-5 w-5 text-white" />
+        </a>
+      }
     >
-      {config.hero_imagem && (
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-10"
-          style={{ backgroundImage: `url(${config.hero_imagem})` }}
-        />
-      )}
-
-      <div className="relative z-10 flex w-full flex-col items-center justify-center">
-        <div className="mb-[1.6rem] inline-flex items-center gap-2 rounded-[100px] border border-white/10 bg-[rgba(20,24,35,0.75)] px-5 py-[7px] backdrop-blur">
-          <CompassIcon className="h-[13px] w-[13px] text-white/60" />
-          <span className="text-[11.5px] font-medium uppercase tracking-[0.14em] text-white/70">
-            {config.local}
-          </span>
-        </div>
-
-        <h1 className="font-extrabold leading-[1.12] tracking-[-1.5px] text-white md:leading-[1.07]">
-          <span className="hidden text-[clamp(46px,7.5vw,80px)] md:inline">
-            {splitTitle(config.titulo_hero)}
-          </span>
-          <span className="block text-[clamp(40px,11vw,56px)] md:hidden">
-            {config.titulo_hero}
-          </span>
-        </h1>
-
-        <p className="mb-11 mt-0 text-[clamp(16px,2vw,19px)] italic text-white/50">
-          {config.slogan}
-        </p>
-
-        <div className="flex w-full flex-wrap items-center justify-center gap-3.5">
-          <Link
-            href="/fale-conosco"
-            className="flex w-full items-center justify-center rounded-lg bg-[#e85d04] px-8 py-[15px] text-[15.5px] font-semibold text-white shadow-[0_4px_20px_rgba(232,93,4,0.35)] transition-all hover:-translate-y-px hover:bg-[#d05203] hover:shadow-[0_6px_28px_rgba(232,93,4,0.45)] sm:w-auto"
-          >
-            {config.cta}
-          </Link>
-          <Link
-            href="/agenda"
-            className="flex w-full items-center justify-center rounded-lg border-[1.5px] border-white/20 bg-white/[0.07] px-8 py-[15px] text-[15.5px] font-semibold text-white transition-all hover:-translate-y-px hover:border-white/40 hover:bg-white/[0.13] sm:w-auto"
-          >
-            Nossa Agenda
-          </Link>
-        </div>
-
-        {config.instagram && (
-          <a
-            href={config.instagram}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Instagram"
-            className="mt-6 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white/75 transition-all hover:-translate-y-0.5 hover:bg-[#e85d04] hover:text-white"
-          >
-            <InstagramIcon className="h-5 w-5" />
-          </a>
-        )}
+      <div
+        className="vi-hero-anim inline-flex items-center gap-2 rounded-full border border-white/10 bg-[rgba(20,24,35,0.75)] px-5 py-[7px] backdrop-blur"
+        style={delay(0)}
+      >
+        <CompassIcon className="h-[13px] w-[13px] text-white/60" />
+        <span className="text-[11.5px] font-medium uppercase tracking-[0.14em] text-white/70">
+          {config.local}
+        </span>
       </div>
 
-      <a
-        href="#horarios"
-        aria-label="Rolar para o conteúdo"
-        className="absolute bottom-7 left-1/2 opacity-30 transition-opacity hover:opacity-70"
-        style={{ animation: "hero-bounce 2s infinite" }}
-      >
-        <ChevronDownIcon className="h-5 w-5 text-white" />
-      </a>
+      <h1 className="vi-heading vi-title-display vi-hero-anim text-white" style={delay(80)}>
+        {splitTitle(config.titulo_hero)}
+      </h1>
 
-      <style>{`@keyframes hero-bounce { 0%,100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(5px); } }`}</style>
-    </section>
+      <p className="vi-subtitle vi-hero-anim italic text-white/50" style={delay(160)}>
+        {config.slogan}
+      </p>
+
+      <div className="vi-hero-anim flex w-full flex-wrap items-center justify-center gap-3.5" style={delay(240)}>
+        <Link href="/fale-conosco" className={BTN_PRIMARY} style={{ boxShadow: "var(--v-shadow)" }}>
+          {config.cta}
+        </Link>
+        <Link href="/agenda" className={BTN_SECONDARY}>
+          Nossa Agenda
+        </Link>
+      </div>
+
+      {config.instagram && (
+        <a
+          href={config.instagram}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Instagram"
+          className="vi-hero-anim mt-2 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white/75 transition-all hover:-translate-y-0.5 hover:bg-(--color-action) hover:text-white"
+          style={delay(320)}
+        >
+          <InstagramIcon className="h-5 w-5" />
+        </a>
+      )}
+    </HeroVisual>
   );
 }

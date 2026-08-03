@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import PageView from "@/components/PageView";
+import Sections from "@/components/sections";
 import { getPage, getPages } from "@/lib/content";
 
 export const revalidate = 60;
 
+const SPECIAL_ROUTES = new Set(["quem-somos", "agenda", "galeria", "fale-conosco"]);
+
 export async function generateStaticParams() {
   return getPages()
-    .filter((p) => p.slug !== "quem-somos" && p.slug !== "agenda")
+    .filter((p) => !SPECIAL_ROUTES.has(p.slug))
     .map((p) => ({ slug: p.slug }));
 }
 
@@ -29,5 +31,5 @@ export default async function ContentPage({
   const { slug } = await params;
   const page = getPage(slug);
   if (!page) notFound();
-  return <PageView slug={slug} />;
+  return <Sections slug={slug} />;
 }

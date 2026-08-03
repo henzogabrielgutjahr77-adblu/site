@@ -47,6 +47,8 @@ const CONFIG_FIELDS: { key: keyof SiteConfig; label: string }[] = [
   { key: "whatsapp_url", label: "WhatsApp (URL)" },
   { key: "endereco", label: "Endereço" },
   { key: "email", label: "Email" },
+  { key: "logo", label: "Logo (URL ou /uploads/…)" },
+  { key: "copyright", label: "Copyright do rodapé" },
 ];
 
 export function ConfigForm({ config }: { config: SiteConfig }) {
@@ -76,15 +78,17 @@ export function ConfigForm({ config }: { config: SiteConfig }) {
   );
 }
 
-export function PageForm({ page }: { page: PageContent & { slug: string } }) {
+export function PageForm({
+  page,
+  defaultOpen,
+}: {
+  page: PageContent & { slug: string };
+  defaultOpen?: boolean;
+}) {
   const [state, action, pending] = useActionState(savePageAction, {});
   const [delState, delAction, delPending] = useActionState(deletePageAction, {});
-  return (
-    <details className="group mt-3 rounded-2xl bg-white p-6 shadow-sm open:pb-4">
-      <summary className="cursor-pointer text-base font-semibold text-slate-900">
-        {page.title}{" "}
-        <span className="ml-1 text-sm font-normal text-slate-400">/{page.slug}</span>
-      </summary>
+  const content = (
+    <>
       <form action={action} className="mt-4 space-y-4">
         <input type="hidden" name="slug" value={page.slug} />
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -129,17 +133,34 @@ export function PageForm({ page }: { page: PageContent & { slug: string } }) {
         </button>
         <Status state={delState} />
       </form>
+    </>
+  );
+  if (defaultOpen) {
+    return (
+      <section className="rounded-2xl bg-white p-6 shadow-sm">
+        <h3 className="text-base font-semibold text-slate-900">
+          Informações da página{" "}
+          <span className="ml-1 text-sm font-normal text-slate-400">/{page.slug}</span>
+        </h3>
+        <div className="mt-4">{content}</div>
+      </section>
+    );
+  }
+  return (
+    <details className="group mt-3 rounded-2xl bg-white p-6 shadow-sm open:pb-4">
+      <summary className="cursor-pointer text-base font-semibold text-slate-900">
+        {page.title}{" "}
+        <span className="ml-1 text-sm font-normal text-slate-400">/{page.slug}</span>
+      </summary>
+      {content}
     </details>
   );
 }
 
-export function PageCreateForm() {
+export function PageCreateForm({ defaultOpen }: { defaultOpen?: boolean }) {
   const [state, action, pending] = useActionState(createPageAction, {});
-  return (
-    <details className="group mt-3 rounded-2xl border border-dashed border-orange-300 bg-orange-50/40 p-6 shadow-sm open:pb-4">
-      <summary className="cursor-pointer text-base font-semibold text-orange-800">
-        + Nova página
-      </summary>
+  const content = (
+    <>
       <form action={action} className="mt-4 space-y-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
@@ -173,6 +194,22 @@ export function PageCreateForm() {
         </button>
         <Status state={state} />
       </form>
+    </>
+  );
+  if (defaultOpen) {
+    return (
+      <section className="rounded-2xl border border-dashed border-orange-300 bg-orange-50/40 p-6 shadow-sm">
+        <h3 className="text-base font-semibold text-orange-800">+ Nova página</h3>
+        <div className="mt-4">{content}</div>
+      </section>
+    );
+  }
+  return (
+    <details className="group mt-3 rounded-2xl border border-dashed border-orange-300 bg-orange-50/40 p-6 shadow-sm open:pb-4">
+      <summary className="cursor-pointer text-base font-semibold text-orange-800">
+        + Nova página
+      </summary>
+      {content}
     </details>
   );
 }
